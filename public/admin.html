@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summa Kamelen Race - Admin Paneel</title>
+    <style>
+        :root {
+            --bg-color: #1e1e2f;
+            --panel-bg: #2a2a40;
+            --text-color: #ffffff;
+            --accent: #ff9800;
+            --danger: #f44336;
+            --success: #4caf50;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2, h3 { color: var(--accent); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        /* Login Scherm */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        #login-screen input {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        /* Dashboard Grid */
+        #admin-dashboard { display: none; }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Knoppen & Inputs */
+        button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px 0;
+            transition: 0.2s;
+        }
+        button:hover { filter: brightness(1.2); }
+        button.danger { background-color: var(--danger); color: white; }
+        button.success { background-color: var(--success); color: white; }
+        
+        select, input[type="number"], input[type="text"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        /* CMS Lijsten */
+        ul { list-style-type: none; padding: 0; }
+        li {
+            background: rgba(255,255,255,0.1);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .category-box {
+            border: 1px solid var(--accent);
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="login-screen">
+        <h1>Admin Login</h1>
+        <input type="password" id="adminPass" placeholder="Wachtwoord">
+        <button onclick="login()">Inloggen</button>
+        <p id="login-error" style="color: var(--danger);"></p>
+    </div>
+
+    <div id="admin-dashboard">
+        <h1>🛠️ Hoofdbeheer Paneel</h1>
+        
+        <div class="grid">
+            <div class="panel">
+                <h2>🌍 Globale Instellingen</h2>
+                <p>Wijzigingen zijn direct actief voor alle spelers.</p>
+                <label><strong>Thema:</strong></label><br>
+                <select id="themeSelect">
+    <optgroup label="Klassiekers">
+        <option value="desert">🐪 Woestijn (Standaard)</option>
+        <option value="hacker">💻 Hacker (Matrix Groen)</option>
+        <option value="space">🚀 Ruimte (Sci-Fi Blauw)</option>
+        <option value="neon">🪩 Neon (Roze/Paars Retro)</option>
+    </optgroup>
+    <optgroup label="Nieuwe Werelden">
+        <option value="ocean">🌊 Diepzee (Blauw & Bubbels)</option>
+        <option value="volcano">🌋 Vulkaan (Rood & Vuur)</option>
+        <option value="cyberpunk">🤖 Cyberpunk (Paars & Cyaan)</option>
+        <option value="jungle">🌴 Jungle (Diep Groen)</option>
+        <option value="candy">🍬 Snoepwereld (Suikerspin Roze)</option>
+        <option value="luxury">👑 Luxury VIP (Zwart & Goud)</option>
+    </optgroup>
+</select>
+                <br><br>
+                <label><strong>Max Spelers per Kamer:</strong></label><br>
+                <input type="number" id="maxPlayersInput" value="6" min="2" max="50">
+                <br><br>
+                <label><strong>Aantal vragen per ronde:</strong></label><br>
+                <input type="number" id="questionsPerRoundInput" value="10" min="1" max="100">
+                <br><br>
+                <button class="success" onclick="saveSettings()">💾 Sla Instellingen Op</button>
+            </div>
+
+            <div class="panel">
+                <h2>🏠 Actieve Kamers</h2>
+                <ul id="roomsList"></ul>
+                <hr>
+                <button class="danger" onclick="resetLeaderboard()">🏆 Reset Globaal Leaderboard</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>📚 Vragen Database (CMS)</h2>
+            <button class="success" onclick="addCategory()">+ Nieuwe Categorie Toevoegen</button>
+            <div id="cms-content" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    // --- LOGIN LOGICA ---
+    function login() {
+        const pass = document.getElementById('adminPass').value;
+        socket.emit('adminLogin', pass);
+    }
+
+    socket.on('adminError', (msg) => {
+        document.getElementById('login-error').innerText = msg;
+    });
+
+    socket.on('adminData', (data) => {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+        
+        renderRooms(data.rooms);
+        if(data.questionBank) renderCMS(data.questionBank);
+    });
+
+    // --- INSTELLINGEN LOGICA ---
+    function saveSettings() {
+        const theme = document.getElementById('themeSelect').value;
+        const maxP = document.getElementById('maxPlayersInput').value;
+        const qPerRound = document.getElementById('questionsPerRoundInput').value;
+        
+        socket.emit('adminUpdateSettings', {
+            theme: theme,
+            maxPlayers: parseInt(maxP),
+            questionsPerRound: parseInt(qPerRound)
+        });
+        alert("Instellingen opgeslagen en doorgestuurd naar alle spelers!");
+    }
+
+    // --- KAMER LOGICA ---
+    function renderRooms(rooms) {
+        const list = document.getElementById('roomsList');
+        list.innerHTML = '';
+        if (Object.keys(rooms).length === 0) list.innerHTML = '<li>Geen actieve kamers.</li>';
+        
+        for (let name in rooms) {
+            const r = rooms[name];
+            list.innerHTML += `
+                <li>
+                    <span><strong>${name}</strong> (${r.playerCount} spelers) - Status: ${r.status}</span>
+                    <div>
+                        ${r.status === 'waiting' ? `<button onclick="forceStart('${name}')">Start Nu</button>` : ''}
+                        <button class="danger" onclick="deleteRoom('${name}')">Sluiten</button>
+                    </div>
+                </li>
+            `;
+        }
+    }
+
+    function forceStart(name) { socket.emit('adminForceStart', name); }
+    function deleteRoom(name) { if(confirm(`Kamer ${name} echt sluiten?`)) socket.emit('adminDeleteRoom', name); }
+    function resetLeaderboard() { if(confirm("Weet je zeker dat je het hele leaderboard wilt wissen?")) socket.emit('adminResetLeaderboard'); }
+
+// --- CMS / VRAGEN LOGICA ---
+    
+    // Deze set onthoudt welke categorieën je hebt opengeklapt!
+    let openCategories = new Set();
+
+    function toggleCategory(cat) {
+        const content = document.getElementById('cat-content-' + cat);
+        const icon = document.getElementById('cat-icon-' + cat);
+        
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            icon.innerText = '▼';
+            openCategories.add(cat);
+        } else {
+            content.style.display = 'none';
+            icon.innerText = '▶';
+            openCategories.delete(cat);
+        }
+    }
+
+    function renderCMS(bank) {
+        const container = document.getElementById('cms-content');
+        container.innerHTML = '';
+
+        for (let category in bank) {
+            // Check of deze map open of dicht zat
+            const isOpen = openCategories.has(category);
+            const displayStyle = isOpen ? 'block' : 'none';
+            const icon = isOpen ? '▼' : '▶';
+
+            let html = `<div class="category-box">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <h3 style="cursor:pointer; margin:0; user-select: none;" onclick="toggleCategory('${category}')">
+                        <span id="cat-icon-${category}">${icon}</span> 📂 ${category} (${bank[category].length} vragen)
+                    </h3>
+                    <div>
+                        <button class="success" onclick="addQuestion('${category}')">+ Vraag Toevoegen</button>
+                        <button class="danger" onclick="deleteCategory('${category}')">🗑 Categorie Verwijderen</button>
+                    </div>
+                </div>
+                
+                <div id="cat-content-${category}" style="display: ${displayStyle}; margin-top: 15px;">
+                    <ul>`;
+            
+            bank[category].forEach((qObj, index) => {
+                html += `
+                    <li>
+                        <span><strong>Q:</strong> ${qObj.q}</span>
+                        <button class="danger" onclick="deleteQuestion('${category}', ${index})">Vraag Wissen</button>
+                    </li>
+                `;
+            });
+            html += `</ul></div></div>`;
+            container.innerHTML += html;
+        }
+    }
+
+    function addCategory() {
+        const name = prompt("Hoe heet de nieuwe categorie?");
+        if (name) socket.emit('adminAddCategory', name);
+    }
+
+    function deleteCategory(cat) {
+        if (confirm(`Weet je ZEKER dat je de hele categorie '${cat}' en ALLE vragen erin wilt wissen?`)) {
+            socket.emit('adminDeleteCategory', cat);
+        }
+    }
+
+    function addQuestion(cat) {
+        const q = prompt("Typ de Vraag:");
+        if (!q) return;
+        const o1 = prompt("Antwoord 1 (Dit MOET het GOEDE antwoord zijn! De server husselt het straks vanzelf):");
+        const o2 = prompt("Antwoord 2 (Fout):");
+        const o3 = prompt("Antwoord 3 (Fout):");
+        const o4 = prompt("Antwoord 4 (Fout):");
+
+        if (q && o1 && o2 && o3 && o4) {
+            socket.emit('adminAddQuestion', {
+                category: cat,
+                questionObj: { q: q, options: [o1, o2, o3, o4], answer: 0 }
+            });
+        } else {
+            alert("Je hebt niet alle velden ingevuld! Vraag is geannuleerd.");
+        }
+    }
+
+    function deleteQuestion(cat, index) {
+        if (confirm("Wil je deze specifieke vraag permanent verwijderen?")) {
+            socket.emit('adminDeleteQuestion', { category: cat, index: index });
+        }
+    }
+</script>
+</body>
+</html>

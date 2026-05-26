@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐪Summa Kamelenrace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; color: #2d3436;
+        }
+        h1 { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); margin-top: 20px;}
+        h2, h3, h4 { color: #d35400; font-weight: 800; text-align: center; margin-top: 0;}
+        
+        .container { display: flex; width: 95%; max-width: 1200px; margin-top: 10px; gap: 20px; flex-wrap: wrap; justify-content: center;}
+        
+        .panel { 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
+            border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 30px; 
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-out;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .left-panel { flex: 1; min-width: 250px; height: fit-content; }
+        .main-panel { flex: 3; min-width: 300px; display: flex; flex-direction: column; align-items: center; width: 100%;}
+
+        input[type="text"], select { 
+            padding: 15px; font-size: 16px; margin: 10px 0; width: 85%; box-sizing: border-box;
+            border: 2px solid #dfe6e9; border-radius: 12px; font-family: 'Nunito', sans-serif;
+            transition: all 0.3s ease; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        input[type="text"]:focus, select:focus { outline: none; border-color: #e17055; box-shadow: 0 0 10px rgba(225, 112, 85, 0.3); }
+        
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin: 15px auto; width: 85%;}
+        .cat-item { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;}
+        .cat-item input { width: 20px; height: 20px; cursor: pointer; accent-color: #e17055;}
+
+        button { 
+            padding: 15px 30px; font-size: 18px; font-weight: 800; font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e17055, #d63031); color: white; border: none; border-radius: 12px; cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(214, 48, 49, 0.4); text-transform: uppercase;
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(214, 48, 49, 0.5); }
+        button:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(214, 48, 49, 0.4); }
+        
+        #gameArea { display: none; width: 100%; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;}
+        #btnLeave { background: linear-gradient(135deg, #636e72, #2d3436); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); font-size: 14px; padding: 10px 20px;}
+        
+        #waitingScreen { display: none; width: 100%; text-align: center; margin-bottom: 20px; background: rgba(255,234,167, 0.9); }
+        .big-timer { font-size: 60px; font-weight: 900; color: #d63031; background: white; width: 100px; height: 100px; line-height: 100px; border-radius: 50%; margin: 10px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
+
+        #quiz-container { display: none; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
+        #questionText { font-size: 24px; color: #2d3436; min-height: 70px; display: flex; align-items: center; justify-content: center;}
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .option-btn { background: #0984e3; box-shadow: 0 6px 15px rgba(9, 132, 227, 0.3); font-size: 16px; border-radius: 12px;}
+        .option-btn:hover { background: #74b9ff; }
+        
+        .track-container { width: 100%; background: #ffeaa7; border-radius: 20px; padding: 20px; border: 4px solid #fdcb6e; box-sizing: border-box; box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);}
+        .track { border-bottom: 4px dashed #e17055; margin: 35px 0; position: relative; height: 50px; }
+        .player-label { position: absolute; font-size: 12px; font-weight: 900; top: -20px; background: white; padding: 4px 10px; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); white-space: nowrap; left: 50%; transform: translateX(-50%); }
+        #finish { position: absolute; right: 0; top: -15px; bottom: -5px; width: 20px; background: repeating-linear-gradient(45deg, #2d3436, #2d3436 10px, white 10px, white 20px); border-radius: 5px; z-index: 1;}
+
+        .flipped-emoji { display: inline-block; transform: scaleX(-1); }
+        
+        @keyframes gallop {
+            0% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+            25% { transform: scaleX(-1) translateY(-10px) rotate(-10deg); }
+            50% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+            75% { transform: scaleX(-1) translateY(-5px) rotate(5deg); }
+            100% { transform: scaleX(-1) translateY(0) rotate(0deg); }
+        }
+        .stepping { animation: gallop 0.4s ease-in-out; }
+
+        #leaderboardList { list-style-type: none; padding: 0; margin: 0; }
+        #leaderboardList li { padding: 15px 10px; border-bottom: 1px solid #dfe6e9; display: flex; justify-content: space-between; font-weight: 700; font-size: 16px;}
+        #leaderboardList li:last-child { border-bottom: none; }
+        
+        #winnerBanner { display: none; background: #00b894; color: white; padding: 20px; border-radius: 15px; font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 20px; width: 100%; box-shadow: 0 10px 25px rgba(0, 184, 148, 0.4); box-sizing: border-box;}
+
+/* =====================================================================
+   GEMEENSCHAPPELIJKE STIJLEN (Basis voor elk thema)
+   ===================================================================== */
+:root {
+    --transition-speed: 0.4s;
+    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    transition: background var(--transition-speed), color var(--transition-speed);
+    overflow-x: hidden;
+}
+
+/* De container waar de racebanen in zitten */
+#game-screen {
+    padding: 20px;
+    position: relative;
+    z-index: 1; /* Zorgt dat content boven CSS-achtergronden staat */
+}
+
+/* Basisstijl voor een racebaan */
+.camel-track {
+    position: relative;
+    height: 80px; /* Iets hoger voor emoji's */
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.1); /* Licht transparante baan */
+    border-radius: 10px;
+    overflow: hidden;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-speed);
+}
+
+/* De Finishlijn (pseudo-element op elke baan) */
+.camel-track::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 50px; /* 50px voor het einde */
+    width: 15px;
+    height: 100%;
+    background: repeating-conic-gradient(#FFF 0% 25%, #000 0% 50%) 50% / 10px 10px;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+/* Basisstijl voor de speler-sprite */
+.camel {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    transition: left 0.1s linear, transform 0.2s;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* DE DEFINITIEVE FIX: Maakt alles in de div (inclusief de hardnekkige HTML kameel) 100% onzichtbaar */
+    visibility: hidden; 
+}
+
+/* Verberg de originele <img> tag mocht die er nog zijn */
+.camel img {
+    display: none !important;
+}
+
+/* Plaats de nieuwe thema-emoji via het ::after pseudo-element */
+.camel::after {
+    content: var(--sprite-emoji, "🐪"); 
+    font-size: 50px; 
+    
+    /* Zorgt dat DEZE specifieke thema-emoji wél zichtbaar is! */
+    visibility: visible; 
+    
+    position: absolute;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+}
+
+/* Basisstijlen voor knoppen overschreven door thema's */
+button {
+    transition: all 0.2s;
+    outline: none;
+}
+button:hover {
+    filter: brightness(1.1);
+}
+
+/* =====================================================================
+   THEMA SPECIFIEKE STIJLEN
+   ===================================================================== */
+
+/* 1. DESERT (De Klassieke Woestijn) */
+body.theme-desert {
+    --sprite-emoji: "🐪";
+    background-color: #f4a460;
+    background-image: 
+        radial-gradient(circle at 100% 150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%),
+        radial-gradient(circle at 0    150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%),
+        radial-gradient(circle at 50%  100%, #e29550 10%, #f4a460 11%, #f4a460 23%, #e29550 24%, #e29550 30%, #f4a460 31%, #f4a460 43%, #e29550 44%, #e29550 50%, #f4a460 51%);
+    background-size: 100px 50px;
+    color: #5c3a21;
+}
+body.theme-desert .camel-track { background: rgba(139, 69, 19, 0.15); border-bottom-color: #8b4513; }
+body.theme-desert button { background: #cd853f; color: white; box-shadow: 0 4px 0 #8b4513; }
+
+/* 2. HACKER (Matrix Digital Rain) */
+body.theme-hacker {
+    --sprite-emoji: "🤖";
+    background-color: #000;
+    background-image: 
+        linear-gradient(0deg, rgba(0, 30, 0, 0.5) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 30, 0, 0.5) 1px, transparent 1px),
+        linear-gradient(transparent 95%, rgba(0, 255, 0, 0.2) 95%),
+        linear-gradient(90deg, transparent 95%, rgba(0, 255, 0, 0.2) 95%);
+    background-size: 20px 20px, 20px 20px, 400px 400px, 400px 400px;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+}
+body.theme-hacker .camel-track { background: rgba(0, 255, 0, 0.05); border-bottom-color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
+body.theme-hacker .camel::after { filter: drop-shadow(0 0 5px #00ff00); }
+body.theme-hacker button { background: #000; color: #00ff00; border: 1px solid #00ff00; box-shadow: 0 0 5px #00ff00; text-transform: monospace; }
+
+/* 3. SPACE (Kosmische Mist) */
+body.theme-space {
+    --sprite-emoji: "🚀";
+    background-color: #050510;
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px),
+        radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.3), transparent 70%);
+    background-size: 550px 550px, 350px 350px, 250px 250px, 100% 100%;
+    background-position: 0 0, 40px 60px, 130px 270px, 0 0;
+    color: #fff;
+}
+body.theme-space .camel-track { background: rgba(255, 255, 255, 0.08); border-bottom-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
+body.theme-space .camel { transform: rotate(45deg); }
+body.theme-space button { background: linear-gradient(135deg, #4b0082, #00d2ff); color: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4); }
+
+/* 4. NEON (Retro Cyber Vibe) */
+body.theme-neon {
+    --sprite-emoji: "🦄";
+    background-color: #010101;
+    background-image: 
+        linear-gradient(rgba(255, 20, 147, 0.2) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(0, 191, 255, 0.2) 2px, transparent 2px);
+    background-size: 50px 50px;
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 10px #ff1493;
+}
+body.theme-neon .camel-track { background: rgba(255, 20, 147, 0.05); border-bottom: 2px solid #00bfff; box-shadow: 0 0 15px #ff1493, inset 0 0 10px #00bfff; }
+body.theme-neon .camel::after { filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ff1493); }
+body.theme-neon button { background: transparent; color: #ff1493; border: 2px solid #ff1493; box-shadow: 0 0 10px #ff1493, inset 0 0 5px #ff1493; text-shadow: 0 0 5px #ff1493; }
+body.theme-neon button:hover { background: #ff1493; color: white; box-shadow: 0 0 20px #ff1493; }
+
+/* 5. OCEAN (Onderwaterwereld) */
+body.theme-ocean {
+    --sprite-emoji: "🦈";
+    background-color: #001f3f;
+    background-image: 
+        radial-gradient(circle at 50% -20%, #0074d9, transparent 80%),
+        repeating-radial-gradient(circle at 50% -20%, transparent 0, rgba(255,255,255,0.05) 2px, transparent 4px, transparent 10px);
+    color: #7fdbff;
+}
+body.theme-ocean .camel-track { background: rgba(0, 116, 217, 0.1); border-bottom-color: #7fdbff; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+body.theme-ocean button { background: #0074d9; color: white; border-radius: 5px; box-shadow: 0 4px 0 #001f3f; }
+
+/* 6. VOLCANO (Lava Velden) */
+body.theme-volcano {
+    --sprite-emoji: "🐉";
+    background-color: #222;
+    background-image: 
+        linear-gradient(135deg, #111 25%, transparent 25%), 
+        linear-gradient(225deg, #111 25%, transparent 25%), 
+        linear-gradient(45deg, #111 25%, transparent 25%), 
+        linear-gradient(315deg, #111 25%, transparent 25%),
+        radial-gradient(#ff4136 10%, transparent 11%);
+    background-size: 40px 40px, 40px 40px, 40px 40px, 40px 40px, 100px 100px;
+    background-position: 20px 0, 20px 0, 0 0, 0 0, 0 0;
+    color: #ff851b;
+}
+body.theme-volcano .camel-track { background: rgba(255, 65, 54, 0.1); border-bottom-color: #ff4136; box-shadow: 0 0 15px rgba(255, 65, 54, 0.5); }
+body.theme-volcano .camel::after { filter: drop-shadow(0 0 5px #ff851b) drop-shadow(0 0 10px #ff4136); }
+body.theme-volcano button { background: #ff4136; color: white; box-shadow: 0 4px 0 #800; border: 1px solid #ff851b; }
+
+/* 7. JUNGLE (Bladerdek) */
+body.theme-jungle {
+    --sprite-emoji: "🐒";
+    background-color: #0a290a;
+    background-image: 
+        radial-gradient(circle at 10% 10%, #1a4d1a 3px, transparent 4px),
+        radial-gradient(circle at 90% 80%, #1a4d1a 4px, transparent 5px),
+        radial-gradient(circle at 50% 50%, #0d330d 20%, transparent 60%),
+        linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d),
+        linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d);
+    background-size: 100px 100px, 150px 150px, 300px 300px, 50px 50px, 50px 50px;
+    background-position: 0 0, 0 0, 0 0, 0 0, 25px 25px;
+    color: #2ecc40;
+}
+body.theme-jungle .camel-track { background: rgba(61, 153, 112, 0.1); border-bottom-color: #3d9970; }
+body.theme-jungle button { background: #2ecc40; color: #0a290a; border-radius: 20px; }
+
+/* 8. CANDY (Willy Wonka Stijl) */
+body.theme-candy {
+    --sprite-emoji: "🍰";
+    background-color: #ffe6ea;
+    background-image: repeating-linear-gradient(45deg, #ffe6ea, #ffe6ea 20px, #fff 20px, #fff 40px);
+    color: #ff1493;
+}
+body.theme-candy .camel-track { background: rgba(255, 105, 180, 0.1); border-bottom-color: #ff69b4; border-radius: 20px; }
+body.theme-candy button { background: linear-gradient(#ff69b4, #ff1493); color: white; border-radius: 50px; box-shadow: 0 4px 0 #c06; }
+
+/* 9. LUXURY (Zwart & Goud VIP) */
+body.theme-luxury {
+    --sprite-emoji: "💎";
+    background-color: #111;
+    background-image: 
+        linear-gradient(120deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 20%, transparent 20%, transparent 100%),
+        linear-gradient(240deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 15%, transparent 15%, transparent 100%);
+    background-size: 100% 100%;
+    color: #ffd700;
+}
+body.theme-luxury .camel-track { background: rgba(255, 215, 0, 0.03); border-bottom: 1px solid #ffd700; border-radius: 0; }
+body.theme-luxury .camel::after { filter: drop-shadow(0 0 10px #ffd700); }
+body.theme-luxury button { background: linear-gradient(45deg, #b8860b, #ffd700, #b8860b); background-size: 200% auto; color: #000; text-transform: uppercase; letter-spacing: 2px; border: none; box-shadow: 0 2px 5px rgba(255,215,0,0.5); }
+body.theme-luxury button:hover { background-position: right center; }
+
+/* 10. CYBERPUNK (Neon & Synthwave) */
+body.theme-cyberpunk {
+    --sprite-emoji: "🏍️";
+    background-color: #0b001a;
+    background-image: 
+        linear-gradient(rgba(1, 205, 254, 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 113, 206, 0.2) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    color: #01cdfe;
+    text-shadow: 0 0 5px rgba(1, 205, 254, 0.8);
+}
+body.theme-cyberpunk .camel-track { background: rgba(255, 113, 206, 0.05); border-bottom: 2px dashed #ff71ce; box-shadow: 0 5px 15px rgba(255, 113, 206, 0.1); }
+body.theme-cyberpunk .camel::after { filter: drop-shadow(0 0 5px #01cdfe) drop-shadow(0 0 15px #ff71ce); }
+body.theme-cyberpunk button { background: linear-gradient(45deg, #01cdfe, #ff71ce); color: #0b001a; border: none; box-shadow: 0 0 10px rgba(1, 205, 254, 0.6), 0 0 20px rgba(255, 113, 206, 0.4); text-shadow: none; letter-spacing: 1px; }
+body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71ce; }
+    </style>
+</head>
+<body>
+
+    <h1>🐪 Summa Kamelenrace</h1>
+
+    <div class="container">
+        <div class="panel left-panel">
+            <h2>🏆 Top Racers</h2>
+            <ul id="leaderboardList"><li>Nog geen winnaars...</li></ul>
+        </div>
+
+        <div class="main-panel">
+            <div id="lobby" class="panel" style="text-align: center; width: 100%; max-width: 500px; box-sizing: border-box;">
+                <h2>Start een Sessie</h2>
+                <input type="text" id="playerName" placeholder="Jouw Naam (bijv. HackerHenk)" maxlength="15"><br>
+                
+                <h4 style="margin-bottom: 5px;">Kies een actieve kamer:</h4>
+                <select id="roomDropdown"><option value="">-- Maak een nieuwe kamer --</option></select>
+                <input type="text" id="roomName" placeholder="Of typ een nieuwe kamernaam"><br>
+                
+                <div id="catSection">
+                    <h4 style="margin-bottom: 5px; margin-top: 15px;">Kies Categorieën:</h4>
+                    <div class="cat-grid" id="catGrid">
+                        </div>
+                </div>
+                <button id="btnJoin" style="margin-top: 20px;">🏁 Ga naar Kamer!</button>
+            </div>
+
+            <div id="gameArea">
+                <div class="game-header">
+                    <h3 id="roomTitle" style="margin: 0; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">Kamer: ...</h3>
+                    <button id="btnLeave">🚪 Verlaat</button>
+                </div>
+
+                <div id="winnerBanner"></div>
+                
+                <div id="waitingScreen" class="panel">
+                    <h2>⏳ Wachten op medespelers...</h2>
+                    <p>De race begint over:</p>
+                    <div class="big-timer" id="timerDisplay">60</div>
+                </div>
+
+                <div id="quiz-container" class="panel">
+                    <h2 id="questionText">Vraag laden...</h2>
+                    <div class="options-grid" id="optionsGrid"></div>
+                </div>
+
+                <div class="track-container" id="tracks"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const lobbyDiv = document.getElementById('lobby');
+        const gameArea = document.getElementById('gameArea');
+        const roomTitle = document.getElementById('roomTitle');
+        const btnJoin = document.getElementById('btnJoin');
+        const btnLeave = document.getElementById('btnLeave');
+        
+        const waitingScreen = document.getElementById('waitingScreen');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const quizContainer = document.getElementById('quiz-container');
+        const questionText = document.getElementById('questionText');
+        const optionsGrid = document.getElementById('optionsGrid');
+        const tracksDiv = document.getElementById('tracks');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const winnerBanner = document.getElementById('winnerBanner');
+
+        const roomDropdown = document.getElementById('roomDropdown');
+        const roomInput = document.getElementById('roomName');
+        const catSection = document.getElementById('catSection');
+        const catGrid = document.getElementById('catGrid');
+
+        let isLocked = false; 
+
+        // --- DYNAMISCHE CATEGORIEËN ---
+        socket.on('availableCategories', (categories) => {
+            catGrid.innerHTML = ''; 
+            categories.forEach(cat => {
+                const label = document.createElement('label');
+                label.className = 'cat-item';
+                label.innerHTML = `<input type="checkbox" value="${cat}" checked> ${cat}`;
+                catGrid.appendChild(label);
+            });
+        });
+
+        // --- LOBBY LOGICA ---
+        socket.on('activeRoomsList', (list) => {
+            const currentVal = roomDropdown.value;
+            roomDropdown.innerHTML = '<option value="">-- Maak een nieuwe kamer --</option>';
+            list.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r; opt.innerText = r;
+                roomDropdown.appendChild(opt);
+            });
+            if(list.includes(currentVal)) roomDropdown.value = currentVal;
+        });
+
+        roomInput.addEventListener('input', (e) => socket.emit('checkRoom', e.target.value));
+        roomDropdown.addEventListener('change', (e) => {
+            roomInput.value = e.target.value;
+            socket.emit('checkRoom', e.target.value);
+        });
+
+        socket.on('roomStatus', (exists) => { catSection.style.display = exists ? 'none' : 'block'; });
+
+        // --- JOIN & LEAVE ---
+        btnJoin.onclick = () => {
+            const playerName = document.getElementById('playerName').value.trim();
+            const roomName = roomInput.value.trim();
+            
+            let categories = [];
+            if(catSection.style.display !== 'none') {
+                const checkboxes = document.querySelectorAll('#catGrid input[type="checkbox"]:checked');
+                categories = Array.from(checkboxes).map(cb => cb.value);
+                if(categories.length === 0) return alert("Kies minimaal 1 categorie!");
+            }
+
+            if (playerName && roomName) socket.emit('joinRoom', { playerName, roomName, categories });
+            else alert("Vul een naam én een kamer in!");
+        };
+
+        btnLeave.onclick = () => {
+            if(confirm("Weet je zeker dat je deze kamer wilt verlaten?")) {
+                socket.emit('leaveRoom');
+                gameArea.style.display = 'none'; lobbyDiv.style.display = 'block';
+                quizContainer.style.display = 'none'; waitingScreen.style.display = 'none';
+                winnerBanner.style.display = 'none';
+            }
+        };
+
+        // --- GAME FLOW ---
+        socket.on('waitingPhase', (data) => {
+            lobbyDiv.style.display = 'none'; gameArea.style.display = 'block';
+            winnerBanner.style.display = 'none'; quizContainer.style.display = 'none'; 
+            waitingScreen.style.display = 'block'; 
+            
+            let catText = data.categories ? (data.categories.length > 2 ? "Mix van Alles" : data.categories.join(" & ")) : "";
+            roomTitle.innerText = `🐪 Kamer: ${roomInput.value.trim()} ${catText ? '('+catText+')' : ''}`;
+            timerDisplay.innerText = data.tijd;
+        });
+
+        socket.on('backToLobby', (tijd) => {
+            winnerBanner.style.display = 'none'; quizContainer.style.display = 'none'; 
+            waitingScreen.style.display = 'block'; 
+            timerDisplay.innerText = tijd; timerDisplay.style.background = "white"; timerDisplay.style.color = "#d63031";
+        });
+
+        socket.on('timerUpdate', (tijd) => {
+            timerDisplay.innerText = tijd;
+            if(tijd <= 10) { timerDisplay.style.color = "white"; timerDisplay.style.background = "#d63031"; } 
+            else { timerDisplay.style.color = "#d63031"; timerDisplay.style.background = "white"; }
+        });
+
+        socket.on('gameStarted', () => { 
+            waitingScreen.style.display = 'none'; quizContainer.style.display = 'block'; winnerBanner.style.display = 'none';
+        });
+
+        socket.on('settingsUpdated', (settings) => {
+         // Verwijder oude thema's en zet de nieuwe
+            document.body.className = ''; 
+            document.body.classList.add(`theme-${settings.theme}`);
+        });
+
+        // --- QUIZ & KAMELEN ---
+        socket.on('newQuestion', (qData) => {
+            isLocked = false; questionText.innerText = qData.q; optionsGrid.innerHTML = '';
+            qData.options.forEach((optie, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn'; btn.innerText = optie;
+                btn.onclick = () => {
+                    if (!isLocked) {
+                        isLocked = true; socket.emit('submitAnswer', index);
+                        btn.style.opacity = '0.5'; btn.innerText = 'Gekozen...';
+                    }
+                };
+                optionsGrid.appendChild(btn);
+            });
+        });
+
+        socket.on('updateGame', (players) => {
+            tracksDiv.innerHTML = '';
+            for (let id in players) {
+                const p = players[id];
+                const track = document.createElement('div'); track.className = 'track';
+                const finish = document.createElement('div'); finish.id = 'finish'; track.appendChild(finish);
+
+                const camelWrapper = document.createElement('div');
+                camelWrapper.className = 'camel'; camelWrapper.style.left = p.progress + '%';
+
+                const emojiSpan = document.createElement('span');
+                emojiSpan.id = `emoji-${id}`; 
+                emojiSpan.className = 'flipped-emoji'; emojiSpan.innerText = '🐪';
+                camelWrapper.appendChild(emojiSpan);
+
+                const label = document.createElement('div');
+                label.className = 'player-label'; label.style.color = p.color; label.innerText = p.name;
+                camelWrapper.appendChild(label);
+
+                track.appendChild(camelWrapper); tracksDiv.appendChild(track);
+            }
+        });
+
+        socket.on('camelStepped', (playerId) => {
+            const playerEmojiSpan = document.getElementById(`emoji-${playerId}`);
+            if(playerEmojiSpan) {
+                playerEmojiSpan.classList.add('stepping');
+                setTimeout(() => playerEmojiSpan.classList.remove('stepping'), 400); 
+            }
+        });
+
+        // --- LEADERBOARD & MELDINGEN ---
+        socket.on('updateLeaderboard', (lbData) => {
+            leaderboardList.innerHTML = '';
+            const sortedPlayers = Object.entries(lbData).sort((a, b) => b[1] - a[1]);
+            if (sortedPlayers.length === 0) return leaderboardList.innerHTML = '<li>Geen data...</li>';
+            sortedPlayers.forEach(([naam, wins], index) => {
+                const li = document.createElement('li');
+                let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                li.innerHTML = `<span>${medal} ${naam}</span> <span>${wins} W</span>`;
+                leaderboardList.appendChild(li);
+            });
+        });
+
+        socket.on('winner', (winnerName) => {
+            quizContainer.style.display = 'none'; 
+            winnerBanner.innerText = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆 \n De wachtruimte wordt zo weer geladen...`;
+            winnerBanner.style.display = 'block';
+        });
+
+        socket.on('errorMessage', (msg) => {
+            if(msg.includes('Fout!')) { questionText.innerText = `❌ ${msg}`; optionsGrid.innerHTML = ''; } 
+            else alert(msg); 
+        });
+    </script>
+</body>
+</html>
