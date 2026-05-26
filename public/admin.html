@@ -96,6 +96,7 @@
             border-radius: 5px;
         }
     </style>
+    <link rel="stylesheet" href="/admin.css">
 </head>
 <body>
 
@@ -108,7 +109,20 @@
     </div>
 
     <div id="admin-dashboard">
-        <h1>🛠️ Hoofdbeheer Paneel</h1>
+        <div class="admin-topbar">
+            <div>
+                <p class="eyebrow">Kamelenrace beheer</p>
+                <h1>🛠️ Hoofdbeheer Paneel</h1>
+            </div>
+            <a class="open-player" href="/" target="_blank">Speler scherm</a>
+        </div>
+
+        <div class="admin-summary" id="adminSummary">
+            <div><span>Kamers</span><strong id="summaryRooms">0</strong></div>
+            <div><span>Racers</span><strong id="summaryPlayers">0</strong></div>
+            <div><span>Categorieën</span><strong id="summaryCategories">0</strong></div>
+            <div><span>Vragen</span><strong id="summaryQuestions">0</strong></div>
+        </div>
         
         <div class="grid">
             <div class="panel">
@@ -129,6 +143,36 @@
         <option value="jungle">🌴 Jungle (Diep Groen)</option>
         <option value="candy">🍬 Snoepwereld (Suikerspin Roze)</option>
         <option value="luxury">👑 Luxury VIP (Zwart & Goud)</option>
+    </optgroup>
+    <optgroup label="Extra Thema's">
+        <option value="arctic">❄️ Arctic Sprint (IJs & Mint)</option>
+        <option value="sunset">🌅 Sunset Rally (Coral & Indigo)</option>
+        <option value="arcade">👾 Arcade Cup (Pixel Neon)</option>
+        <option value="circuit">⚡ Circuit Run (Tech Lime)</option>
+        <option value="royal">🏰 Royal Quest (Emerald & Gold)</option>
+        <option value="festival">🎪 Festival Dash (Confetti)</option>
+        <option value="midnight">🌙 Midnight Drive (Moonlit)</option>
+        <option value="botanic">🌿 Botanic League (Fresh Green)</option>
+    </optgroup>
+    <optgroup label="Animal / Furry / Therian">
+        <option value="pawprint">🐾 Pawprint Party (Warm & Cute)</option>
+        <option value="wolfpack">🐺 Wolfpack Night (Moon & Pines)</option>
+        <option value="foxfire">🦊 Foxfire Dash (Amber & Teal)</option>
+        <option value="dragonden">🐲 Dragon Den (Ember & Smoke)</option>
+        <option value="lynxnight">🐱 Lynx Night (Indigo & Gold)</option>
+        <option value="therianmoon">🌕 Therian Moon (Forest & Silver)</option>
+        <option value="furrycon">🎨 Furry Con (Badge & Confetti)</option>
+        <option value="meadow">🦌 Meadow Run (Soft Nature)</option>
+    </optgroup>
+    <optgroup label="Tech Thema's">
+        <option value="datacenter">🖥️ Datacenter Pulse</option>
+        <option value="terminal">⌨️ Terminal Green</option>
+        <option value="blueprint">📐 Blueprint Grid</option>
+        <option value="hologram">🧊 Hologram Lab</option>
+        <option value="cloudcore">☁️ Cloud Core</option>
+        <option value="securityops">🛡️ Security Ops</option>
+        <option value="retrocrt">📺 Retro CRT</option>
+        <option value="quantum">⚛️ Quantum Flux</option>
     </optgroup>
 </select>
                 <br><br>
@@ -177,7 +221,21 @@
         
         renderRooms(data.rooms);
         if(data.questionBank) renderCMS(data.questionBank);
+        updateSummary(data.rooms || {}, data.questionBank || {});
+        if(data.settings) {
+            document.getElementById('themeSelect').value = data.settings.theme;
+            document.getElementById('maxPlayersInput').value = data.settings.maxPlayers;
+            document.getElementById('questionsPerRoundInput').value = data.settings.questionsPerRound;
+        }
     });
+
+    function updateSummary(rooms, bank) {
+        const roomValues = Object.values(rooms);
+        document.getElementById('summaryRooms').innerText = roomValues.length;
+        document.getElementById('summaryPlayers').innerText = roomValues.reduce((sum, room) => sum + room.playerCount, 0);
+        document.getElementById('summaryCategories').innerText = Object.keys(bank).length;
+        document.getElementById('summaryQuestions').innerText = Object.values(bank).reduce((sum, questions) => sum + questions.length, 0);
+    }
 
     // --- INSTELLINGEN LOGICA ---
     function saveSettings() {

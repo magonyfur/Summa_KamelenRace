@@ -328,10 +328,21 @@ body.theme-cyberpunk .camel::after { filter: drop-shadow(0 0 5px #01cdfe) drop-s
 body.theme-cyberpunk button { background: linear-gradient(45deg, #01cdfe, #ff71ce); color: #0b001a; border: none; box-shadow: 0 0 10px rgba(1, 205, 254, 0.6), 0 0 20px rgba(255, 113, 206, 0.4); text-shadow: none; letter-spacing: 1px; }
 body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71ce; }
     </style>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/theme-worlds.css">
 </head>
 <body>
 
-    <h1>🐪 Summa Kamelenrace</h1>
+    <header class="site-hero">
+        <div>
+            <p class="eyebrow">Summa ICT</p>
+            <h1>🐪 Summa Kamelenrace</h1>
+        </div>
+        <div class="hero-stats" aria-label="Race status">
+            <span id="roomCountBadge">0 kamers</span>
+            <span id="categoryCountBadge">0 categorieën</span>
+        </div>
+    </header>
 
     <div class="container">
         <div class="panel left-panel">
@@ -341,15 +352,28 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
 
         <div class="main-panel">
             <div id="lobby" class="panel" style="text-align: center; width: 100%; max-width: 500px; box-sizing: border-box;">
-                <h2>Start een Sessie</h2>
-                <input type="text" id="playerName" placeholder="Jouw Naam (bijv. HackerHenk)" maxlength="15"><br>
-                
-                <h4 style="margin-bottom: 5px;">Kies een actieve kamer:</h4>
-                <select id="roomDropdown"><option value="">-- Maak een nieuwe kamer --</option></select>
-                <input type="text" id="roomName" placeholder="Of typ een nieuwe kamernaam"><br>
+                <div class="panel-title">
+                    <span>🏁</span>
+                    <h2>Start een Sessie</h2>
+                </div>
+                <div class="form-stack">
+                    <label class="field-label" for="playerName">Naam</label>
+                    <input type="text" id="playerName" placeholder="Jouw Naam (bijv. HackerHenk)" maxlength="15">
+                    
+                    <label class="field-label" for="roomDropdown">Kamer</label>
+                    <select id="roomDropdown"><option value="">-- Maak een nieuwe kamer --</option></select>
+                    <input type="text" id="roomName" placeholder="Of typ een nieuwe kamernaam">
+                </div>
                 
                 <div id="catSection">
-                    <h4 style="margin-bottom: 5px; margin-top: 15px;">Kies Categorieën:</h4>
+                    <div class="category-heading">
+                        <h4>Kies Categorieën</h4>
+                        <div class="category-actions">
+                            <span id="selectedCategoryCount">0 gekozen</span>
+                            <button type="button" id="btnAllCats">Alles</button>
+                            <button type="button" id="btnNoCats">Geen</button>
+                        </div>
+                    </div>
                     <div class="cat-grid" id="catGrid">
                         </div>
                 </div>
@@ -359,6 +383,10 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             <div id="gameArea">
                 <div class="game-header">
                     <h3 id="roomTitle" style="margin: 0; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">Kamer: ...</h3>
+                    <div class="race-meta">
+                        <span id="playerCount">0 racers</span>
+                        <span id="racePhase">Lobby</span>
+                    </div>
                     <button id="btnLeave">🚪 Verlaat</button>
                 </div>
 
@@ -403,8 +431,22 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
         const roomInput = document.getElementById('roomName');
         const catSection = document.getElementById('catSection');
         const catGrid = document.getElementById('catGrid');
+        const selectedCategoryCount = document.getElementById('selectedCategoryCount');
+        const categoryCountBadge = document.getElementById('categoryCountBadge');
+        const roomCountBadge = document.getElementById('roomCountBadge');
+        const btnAllCats = document.getElementById('btnAllCats');
+        const btnNoCats = document.getElementById('btnNoCats');
+        const playerCount = document.getElementById('playerCount');
+        const racePhase = document.getElementById('racePhase');
 
         let isLocked = false; 
+
+        function updateSelectedCategoryCount() {
+            const checked = document.querySelectorAll('#catGrid input[type="checkbox"]:checked').length;
+            const total = document.querySelectorAll('#catGrid input[type="checkbox"]').length;
+            selectedCategoryCount.innerText = `${checked}/${total} gekozen`;
+            categoryCountBadge.innerText = `${total} ${total === 1 ? 'categorie' : 'categorieën'}`;
+        }
 
         // --- DYNAMISCHE CATEGORIEËN ---
         socket.on('availableCategories', (categories) => {
@@ -413,8 +455,10 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                 const label = document.createElement('label');
                 label.className = 'cat-item';
                 label.innerHTML = `<input type="checkbox" value="${cat}" checked> ${cat}`;
+                label.querySelector('input').addEventListener('change', updateSelectedCategoryCount);
                 catGrid.appendChild(label);
             });
+            updateSelectedCategoryCount();
         });
 
         // --- LOBBY LOGICA ---
@@ -427,7 +471,18 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                 roomDropdown.appendChild(opt);
             });
             if(list.includes(currentVal)) roomDropdown.value = currentVal;
+            roomCountBadge.innerText = `${list.length} ${list.length === 1 ? 'kamer' : 'kamers'}`;
         });
+
+        btnAllCats.onclick = () => {
+            document.querySelectorAll('#catGrid input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateSelectedCategoryCount();
+        };
+
+        btnNoCats.onclick = () => {
+            document.querySelectorAll('#catGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateSelectedCategoryCount();
+        };
 
         roomInput.addEventListener('input', (e) => socket.emit('checkRoom', e.target.value));
         roomDropdown.addEventListener('change', (e) => {
@@ -471,12 +526,14 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             let catText = data.categories ? (data.categories.length > 2 ? "Mix van Alles" : data.categories.join(" & ")) : "";
             roomTitle.innerText = `🐪 Kamer: ${roomInput.value.trim()} ${catText ? '('+catText+')' : ''}`;
             timerDisplay.innerText = data.tijd;
+            racePhase.innerText = 'Wachten';
         });
 
         socket.on('backToLobby', (tijd) => {
             winnerBanner.style.display = 'none'; quizContainer.style.display = 'none'; 
             waitingScreen.style.display = 'block'; 
             timerDisplay.innerText = tijd; timerDisplay.style.background = "white"; timerDisplay.style.color = "#d63031";
+            racePhase.innerText = 'Wachten';
         });
 
         socket.on('timerUpdate', (tijd) => {
@@ -487,6 +544,7 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
 
         socket.on('gameStarted', () => { 
             waitingScreen.style.display = 'none'; quizContainer.style.display = 'block'; winnerBanner.style.display = 'none';
+            racePhase.innerText = 'Race';
         });
 
         socket.on('settingsUpdated', (settings) => {
@@ -515,11 +573,15 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             tracksDiv.innerHTML = '';
             for (let id in players) {
                 const p = players[id];
-                const track = document.createElement('div'); track.className = 'track';
+                const track = document.createElement('div'); track.className = 'track'; track.style.setProperty('--progress', p.progress + '%');
                 const finish = document.createElement('div'); finish.id = 'finish'; track.appendChild(finish);
+                const progressBadge = document.createElement('div');
+                progressBadge.className = 'progress-badge';
+                progressBadge.innerText = `${Math.round(p.progress)}%`;
+                track.appendChild(progressBadge);
 
                 const camelWrapper = document.createElement('div');
-                camelWrapper.className = 'camel'; camelWrapper.style.left = p.progress + '%';
+                camelWrapper.className = 'camel'; camelWrapper.id = `camel-${id}`; camelWrapper.style.left = p.progress + '%';
 
                 const emojiSpan = document.createElement('span');
                 emojiSpan.id = `emoji-${id}`; 
@@ -532,13 +594,15 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
 
                 track.appendChild(camelWrapper); tracksDiv.appendChild(track);
             }
+            const count = Object.keys(players).length;
+            playerCount.innerText = `${count} ${count === 1 ? 'racer' : 'racers'}`;
         });
 
         socket.on('camelStepped', (playerId) => {
-            const playerEmojiSpan = document.getElementById(`emoji-${playerId}`);
-            if(playerEmojiSpan) {
-                playerEmojiSpan.classList.add('stepping');
-                setTimeout(() => playerEmojiSpan.classList.remove('stepping'), 400); 
+            const playerCamel = document.getElementById(`camel-${playerId}`);
+            if(playerCamel) {
+                playerCamel.classList.add('stepping');
+                setTimeout(() => playerCamel.classList.remove('stepping'), 450); 
             }
         });
 
@@ -559,6 +623,7 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             quizContainer.style.display = 'none'; 
             winnerBanner.innerText = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆 \n De wachtruimte wordt zo weer geladen...`;
             winnerBanner.style.display = 'block';
+            racePhase.innerText = 'Finish';
         });
 
         socket.on('errorMessage', (msg) => {

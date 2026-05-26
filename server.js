@@ -4,8 +4,10 @@ const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 
-// 📚 IMPORT DE GIGANTISCHE VRAGENLIJST UIT HET ANDERE BESTAND
-const questionBank = require('./questions.js');
+// 📚 LAAD DE VRAGENLIJST UIT HET ANDERE BESTAND
+const questionBankFile = path.join(__dirname, 'questions.js');
+let questionBank = loadQuestionBank();
+let questionBankMtimeMs = fs.statSync(questionBankFile).mtimeMs;
 
 const app = express();
 const server = http.createServer(app);
@@ -27,7 +29,22 @@ let globalSettings = {
 // Functie om gewijzigde vragen keihard op te slaan in je bestand!
 function saveQuestionsToFile() {
     const fileContent = "const questionBank = " + JSON.stringify(questionBank, null, 4) + ";\n\nmodule.exports = questionBank;";
-    fs.writeFileSync(path.join(__dirname, 'questions.js'), fileContent, 'utf8');
+    fs.writeFileSync(questionBankFile, fileContent, 'utf8');
+    questionBankMtimeMs = fs.statSync(questionBankFile).mtimeMs;
+}
+
+function loadQuestionBank() {
+    delete require.cache[require.resolve(questionBankFile)];
+    return require(questionBankFile);
+}
+
+function refreshQuestionBank() {
+    const fileMtimeMs = fs.statSync(questionBankFile).mtimeMs;
+    if (fileMtimeMs !== questionBankMtimeMs) {
+        questionBank = loadQuestionBank();
+        questionBankMtimeMs = fileMtimeMs;
+    }
+    return questionBank;
 }
 
 // --- PERSISTENT LEADERBOARD ---
@@ -40,9 +57,10 @@ function saveLeaderboard() { fs.writeFileSync(leaderboardFile, JSON.stringify(le
 
 // --- GET RANDOM QUESTION & SHUFFLE OPTIONS ---
 function getRandomQuestion(cats) {
+    const bank = refreshQuestionBank();
     let pool = [];
-    cats.forEach(c => { if(questionBank[c]) pool = pool.concat(questionBank[c]); });
-    if(pool.length === 0) pool = questionBank["HTML & CSS"]; // Fallback
+    cats.forEach(c => { if(bank[c]) pool = pool.concat(bank[c]); });
+    if(pool.length === 0) pool = bank["HTML & CSS"]; // Fallback
 
     const originalQuestion = pool[Math.floor(Math.random() * pool.length)];
     
@@ -83,10 +101,11 @@ function broadcastRooms() { io.emit('activeRoomsList', Object.keys(rooms)); }
 
 // --- SOCKET LOGICA ---
 io.on('connection', (socket) => {
+    const bank = refreshQuestionBank();
     socket.emit('settingsUpdated', globalSettings);
     socket.emit('updateLeaderboard', leaderboard);
     socket.emit('activeRoomsList', Object.keys(rooms));
-    socket.emit('availableCategories', Object.keys(questionBank)); // Stuur dynamische categorieën
+    socket.emit('availableCategories', Object.keys(bank)); // Stuur dynamische categorieën
 
     socket.on('checkRoom', (name) => { socket.emit('roomStatus', !!rooms[name]); });
 
@@ -153,12 +172,14 @@ io.on('connection', (socket) => {
     // --- ADMIN ---
     socket.on('adminLogin', (pass) => {
         if(ADMIN_PASSWORDS.includes(pass)) {
+            const bank = refreshQuestionBank();
             socket.join('admins'); 
             // Hier sturen we nu ook de questionBank mee!
             socket.emit('adminData', { 
                 rooms: getSafeRooms(), 
                 leaderboard: leaderboard,
-                questionBank: questionBank 
+                questionBank: bank,
+                settings: globalSettings
             }); 
         } else { 
             socket.emit('adminError', 'Fout wachtwoord!'); 
@@ -189,6 +210,7 @@ io.on('connection', (socket) => {
 
     // --- ADMIN: VRAGEN BEHEREN ---
     socket.on('adminAddCategory', (catName) => {
+        refreshQuestionBank();
         if (!questionBank[catName]) {
             questionBank[catName] = [];
             saveQuestionsToFile();
@@ -198,6 +220,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('adminDeleteCategory', (catName) => {
+        refreshQuestionBank();
         if (questionBank[catName]) {
             delete questionBank[catName];
             saveQuestionsToFile();
@@ -208,6 +231,7 @@ io.on('connection', (socket) => {
 
     socket.on('adminAddQuestion', ({ category, questionObj }) => {
         // questionObj moet zijn: { q: "Vraag?", options: ["A", "B", "C", "D"], answer: 0 }
+        refreshQuestionBank();
         if (questionBank[category]) {
             questionBank[category].push(questionObj);
             saveQuestionsToFile();
@@ -216,6 +240,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('adminDeleteQuestion', ({ category, index }) => {
+        refreshQuestionBank();
         if (questionBank[category] && questionBank[category][index]) {
             questionBank[category].splice(index, 1);
             saveQuestionsToFile();
@@ -269,10 +294,12 @@ function leave(socket) {
 }
 
 function updateAdmin() { 
+    const bank = refreshQuestionBank();
     io.to('admins').emit('adminData', { 
         rooms: getSafeRooms(), 
         leaderboard: leaderboard,
-        questionBank: questionBank // Zorgt dat de admin live updatet als je een vraag toevoegt!
+        questionBank: bank, // Zorgt dat de admin live updatet als je een vraag toevoegt!
+        settings: globalSettings
     }); 
 }
 
@@ -281,9 +308,10 @@ server.listen(3033, '0.0.0.0', () => {
     console.log("🚀 Server draait op https://race.magsec.nl");
     
     // Bereken het totaal aantal vragen in alle categorieën
+    const bank = refreshQuestionBank();
     let totalQuestions = 0;
-    for (let category in questionBank) {
-        totalQuestions += questionBank[category].length;
+    for (let category in bank) {
+        totalQuestions += bank[category].length;
     }
     
     console.log(`📚 Totaal aantal vragen succesvol geladen: ${totalQuestions} vragen!`);

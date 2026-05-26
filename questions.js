@@ -2062,5 +2062,219 @@ for (let category in extraVragenDeel18) {
     }
 }
 
+const extraVragenDeel19 = {
+    "Linux & Terminal": [
+        { q: "Welk Linux-commando toont de bestanden in de huidige map?", options: ["ls", "cd", "pwd", "mkdir"], answer: 0 },
+        { q: "Wat doet het commando 'pwd'?", options: ["Het toont de huidige maplocatie", "Het wijzigt je wachtwoord", "Het wist een map", "Het start een webserver"], answer: 0 },
+        { q: "Waarvoor gebruik je 'chmod' in Linux?", options: ["Bestandsrechten aanpassen", "Bestanden downloaden", "Processen stoppen", "Schijfruimte tonen"], answer: 0 },
+        { q: "Wat betekent 'sudo'?", options: ["Een commando uitvoeren met verhoogde rechten", "Een map kopieren", "Een bestand zoeken", "Een netwerkpoort openen"], answer: 0 },
+        { q: "Welk commando gebruik je om tekst in bestanden te zoeken?", options: ["grep", "ping", "touch", "alias"], answer: 0 },
+        { q: "Wat doet 'tail -f logfile.txt'?", options: ["Nieuwe regels van een logbestand live blijven tonen", "Een bestand verwijderen", "Een map aanmaken", "Een bestand versleutelen"], answer: 0 },
+        { q: "Wat is een shell script?", options: ["Een bestand met terminalcommando's die automatisch uitgevoerd kunnen worden", "Een soort videocodec", "Een database-relatie", "Een CSS-framework"], answer: 0 },
+        { q: "Wat doet het pipe-teken '|' in de terminal?", options: ["Output van het ene commando doorgeven aan het volgende commando", "Een computer afsluiten", "Een bestand hernoemen", "Een map comprimeren"], answer: 0 }
+    ],
+    "APIs & Integraties": [
+        { q: "Waar staat API voor?", options: ["Application Programming Interface", "Automatic Program Installer", "Advanced Pixel Input", "Application Password Index"], answer: 0 },
+        { q: "Wat is een REST API?", options: ["Een API-stijl die resources via HTTP-methodes beschikbaar maakt", "Een pauzeknop voor servers", "Een CSS-animatie", "Een type harde schijf"], answer: 0 },
+        { q: "Welke HTTP-methode gebruik je meestal om data op te halen?", options: ["GET", "POST", "DELETE", "PATCH"], answer: 0 },
+        { q: "Wat betekent statuscode 404?", options: ["Niet gevonden", "Server succesvol gestart", "Geen internet", "Wachtwoord fout"], answer: 0 },
+        { q: "Wat is een API key?", options: ["Een geheime sleutel om toegang tot een API te identificeren of beperken", "Een toetsenbordknop", "Een HTML-element", "Een cachebestand"], answer: 0 },
+        { q: "Wat is JSON vaak in API-verkeer?", options: ["Een tekstformaat om gestructureerde data uit te wisselen", "Een soort firewall", "Een compressie-algoritme", "Een netwerkstekker"], answer: 0 },
+        { q: "Waarom gebruik je rate limiting bij een API?", options: ["Om te beperken hoeveel requests iemand in een periode mag doen", "Om afbeeldingen scherper te maken", "Om CSS te bundelen", "Om RAM te formatteren"], answer: 0 },
+        { q: "Wat is een webhook?", options: ["Een automatische HTTP-melding van systeem A naar systeem B bij een event", "Een haakje in HTML", "Een WiFi-kanaal", "Een databasekolom"], answer: 0 }
+    ],
+    "Software Testing & QA": [
+        { q: "Wat is een unit test?", options: ["Een test van een klein, los stuk code", "Een test van een monitor", "Een netwerkscan", "Een wachtwoordcheck"], answer: 0 },
+        { q: "Wat is regressietesten?", options: ["Controleren of bestaande functies nog werken na wijzigingen", "Een database wissen", "Een app donker maken", "Een processor vertragen"], answer: 0 },
+        { q: "Wat is een test case?", options: ["Een beschreven scenario met stappen en verwachte uitkomst", "Een computerkast", "Een soort kabel", "Een CSS-selector"], answer: 0 },
+        { q: "Wat betekent 'mock' in tests?", options: ["Een nepversie van een afhankelijkheid gebruiken", "Een bestand versleutelen", "Een server fysiek verplaatsen", "Een screenshot maken"], answer: 0 },
+        { q: "Wat is end-to-end testing?", options: ["Een hele gebruikersflow testen alsof een echte gebruiker de app gebruikt", "Alleen de CSS testen", "Een database indexeren", "Een computer opnieuw installeren"], answer: 0 },
+        { q: "Waarom automatiseer je tests?", options: ["Om vaak en snel dezelfde checks betrouwbaar uit te voeren", "Om code geheim te maken", "Om internet sneller te maken", "Om afbeeldingen te comprimeren"], answer: 0 },
+        { q: "Wat is een flaky test?", options: ["Een test die soms slaagt en soms faalt zonder echte codewijziging", "Een test met te veel kleuren", "Een test zonder naam", "Een test voor printers"], answer: 0 },
+        { q: "Wat is code coverage?", options: ["Een maat voor hoeveel code door tests wordt uitgevoerd", "Een backupmethode", "Een firewallregel", "Een kleurenthema"], answer: 0 }
+    ],
+    "Privacy & AVG/GDPR": [
+        { q: "Waarvoor staat AVG in Nederland?", options: ["Algemene Verordening Gegevensbescherming", "Automatische Virus Gateway", "Algemene Video Generator", "Advanced Virtual Graphics"], answer: 0 },
+        { q: "Wat zijn persoonsgegevens?", options: ["Gegevens die direct of indirect naar een persoon herleidbaar zijn", "Alleen wachtwoorden", "Alleen foto's", "Alleen IP-kabels"], answer: 0 },
+        { q: "Wat is dataminimalisatie?", options: ["Alleen gegevens verzamelen die echt nodig zijn", "Data kleiner maken met zip", "Alle tabellen verwijderen", "Data in hoofdletters zetten"], answer: 0 },
+        { q: "Wat betekent toestemming bij privacywetgeving?", options: ["Vrij, specifiek, geinformeerd en ondubbelzinnig akkoord", "Een standaard aangevinkt vakje dat nooit uit kan", "Een wachtwoordzin", "Een servercertificaat"], answer: 0 },
+        { q: "Waarom pseudonimiseer je data?", options: ["Om directe herkenbaarheid van personen te verminderen", "Om data sneller te downloaden", "Om CSS korter te maken", "Om een API openbaar te maken"], answer: 0 },
+        { q: "Wat is een datalek?", options: ["Onbedoelde of ongeoorloofde toegang tot persoonsgegevens", "Een lege database", "Een kapotte muis", "Een trage query"], answer: 0 },
+        { q: "Wat is het recht op inzage?", options: ["Het recht om te weten welke persoonsgegevens van jou verwerkt worden", "Het recht op gratis hardware", "Het recht om elke server te herstarten", "Het recht om CSS te wijzigen"], answer: 0 },
+        { q: "Waarom maak je een verwerkersovereenkomst?", options: ["Om afspraken vast te leggen als een andere partij persoonsgegevens voor jou verwerkt", "Om code sneller te compileren", "Om games te streamen", "Om domeinnamen te kopen"], answer: 0 }
+    ],
+    "Mobile App Development": [
+        { q: "Wat is het verschil tussen native en web app?", options: ["Native draait direct op een platform zoals Android/iOS; web draait in de browser", "Native is altijd gratis", "Web apps hebben geen code", "Native apps werken alleen offline"], answer: 0 },
+        { q: "Waarvoor gebruik je responsive layout in mobile apps?", options: ["Om schermen goed te laten werken op verschillende formaten", "Om de accu te vervangen", "Om alle data te wissen", "Om Bluetooth uit te zetten"], answer: 0 },
+        { q: "Wat is een push notification?", options: ["Een melding die een app naar de gebruiker kan sturen", "Een knop die harder klikt", "Een soort API key", "Een database index"], answer: 0 },
+        { q: "Wat is een app permission?", options: ["Toestemming voor toegang tot bijvoorbeeld camera, locatie of microfoon", "Een CSS-class", "Een serverpoort", "Een hardwaredriver"], answer: 0 },
+        { q: "Waarom test je op echte devices naast simulators?", options: ["Echte hardware, prestaties en sensoren kunnen anders reageren", "Simulators bestaan niet", "Echte devices maken code automatisch", "Het is verplicht voor HTML"], answer: 0 },
+        { q: "Wat is offline-first design?", options: ["Een app zo ontwerpen dat belangrijke functies ook zonder internet bruikbaar blijven", "Een app zonder scherm", "Een app die nooit update", "Een app alleen voor printers"], answer: 0 },
+        { q: "Wat is deep linking?", options: ["Een link die direct naar een specifiek scherm in een app opent", "Een diepe map op de harde schijf", "Een versleutelde wifi-code", "Een donker thema"], answer: 0 },
+        { q: "Waarom is batterijverbruik belangrijk bij mobile development?", options: ["Apps die veel stroom gebruiken worden sneller gesloten of verwijderd", "Batterij bepaalt de tekstkleur", "Het vervangt encryptie", "Het maakt databases groter"], answer: 0 }
+    ],
+    "IT Support & Troubleshooting": [
+        { q: "Wat is de eerste stap bij veel storingen?", options: ["Duidelijk vragen wat er precies gebeurt en sinds wanneer", "Direct alles opnieuw installeren", "Alle bestanden wissen", "Een willekeurige kabel loshalen"], answer: 0 },
+        { q: "Waarom is reproduceren van een probleem nuttig?", options: ["Je ziet dan welke stappen de fout veroorzaken", "Het maakt de monitor helderder", "Het verandert het wachtwoord", "Het verwijdert logs"], answer: 0 },
+        { q: "Wat is een ticket in IT-support?", options: ["Een geregistreerde melding of aanvraag", "Een bioscoopkaartje", "Een soort databasevirus", "Een netwerkpoort"], answer: 0 },
+        { q: "Waarom noteer je foutmeldingen exact?", options: ["Omdat de exacte tekst helpt bij zoeken en diagnose", "Omdat ze mooi zijn", "Omdat de server dan sneller draait", "Omdat het verplicht is in CSS"], answer: 0 },
+        { q: "Wat controleer je bij 'geen internet' vaak als eerste?", options: ["Verbinding, kabel/wifi, IP-instellingen en routerstatus", "De schermresolutie", "De muismat", "Het lettertype"], answer: 0 },
+        { q: "Wat is escaleren in support?", options: ["Een probleem doorzetten naar een specialist of hoger supportniveau", "Een computer optillen", "Een app sluiten", "Een printer vullen"], answer: 0 },
+        { q: "Waarom zijn backups belangrijk bij supportwerk?", options: ["Je kunt gegevens herstellen als er iets misgaat", "Ze versnellen altijd wifi", "Ze vervangen wachtwoorden", "Ze maken schermen groter"], answer: 0 },
+        { q: "Wat betekent SLA?", options: ["Service Level Agreement", "Secure Login App", "System Link Adapter", "Software Layout Animation"], answer: 0 }
+    ],
+    "Virtualisatie & Containers": [
+        { q: "Wat is virtualisatie?", options: ["Meerdere virtuele systemen draaien op fysieke hardware", "Een scherm schoonmaken", "Een kabel splitsen", "Een wachtwoord delen"], answer: 0 },
+        { q: "Wat is een container?", options: ["Een lichte, geisoleerde runtime voor een app met dependencies", "Een fysiek postpakket", "Een SQL-query", "Een soort monitor"], answer: 0 },
+        { q: "Wat is Docker?", options: ["Een platform om containers te bouwen en draaien", "Een tekstverwerker", "Een videokaart", "Een netwerkkabel"], answer: 0 },
+        { q: "Waarvoor gebruik je een image bij containers?", options: ["Als blauwdruk waaruit containers gestart worden", "Alleen voor foto's", "Om RAM te testen", "Om een printer aan te sturen"], answer: 0 },
+        { q: "Wat is een volume in Docker?", options: ["Opslag die data buiten de levensduur van een container kan bewaren", "Het geluidsniveau", "Een CSS-eenheid", "Een soort muis"], answer: 0 },
+        { q: "Wat doet Docker Compose?", options: ["Meerdere services/containers samen definieren en starten", "Afbeeldingen bewerken", "Een laptop formatteren", "Een terminal sluiten"], answer: 0 },
+        { q: "Wat is Kubernetes vooral?", options: ["Een systeem om containers op schaal te beheren en orkestreren", "Een programmeertaal", "Een cloud-wachtwoord", "Een routermodel"], answer: 0 },
+        { q: "Waarom gebruik je environment variables in containers?", options: ["Om configuratie buiten de code instelbaar te maken", "Om CSS te tekenen", "Om hardware te repareren", "Om bestanden te sorteren"], answer: 0 }
+    ],
+    "Web Performance": [
+        { q: "Wat betekent lazy loading?", options: ["Content pas laden wanneer die nodig of zichtbaar wordt", "Een trage programmeur", "Een server uitschakelen", "Een database verwijderen"], answer: 0 },
+        { q: "Waarom comprimeer je afbeeldingen voor het web?", options: ["Om laadtijd en dataverbruik te verminderen", "Om HTML te vervangen", "Om het scherm groter te maken", "Om cookies te wissen"], answer: 0 },
+        { q: "Wat is caching?", options: ["Data tijdelijk opslaan zodat die sneller opnieuw beschikbaar is", "Een wachtwoord raden", "Een bestand permanent wissen", "Een muisbeweging"], answer: 0 },
+        { q: "Wat is minification?", options: ["Overbodige tekens uit code halen om bestanden kleiner te maken", "Een scherm kleiner zetten", "Een database versleutelen", "Een API afsluiten"], answer: 0 },
+        { q: "Waarom is render-blocking JavaScript soms slecht voor performance?", options: ["Het kan voorkomen dat de pagina snel zichtbaar wordt", "Het maakt tekst mooier", "Het verhoogt contrast", "Het maakt wachtwoorden sterker"], answer: 0 },
+        { q: "Wat meet Largest Contentful Paint (LCP)?", options: ["Wanneer het grootste zichtbare content-element geladen is", "Hoe groot je monitor is", "Hoeveel CSS-klassen je hebt", "Hoe lang een wachtwoord is"], answer: 0 },
+        { q: "Wat is een CDN?", options: ["Een netwerk van servers dat content dichter bij gebruikers levert", "Een databasekolom", "Een code-editor", "Een lokaal wachtwoord"], answer: 0 },
+        { q: "Waarom bundel je soms CSS en JavaScript?", options: ["Om minder losse requests en betere levering te krijgen", "Om alle code te verbergen", "Om afbeeldingen te tekenen", "Om RAM te vervangen"], answer: 0 }
+    ],
+    "AI, Media & Prompting": [
+        { q: "Wat is een prompt bij AI-tools?", options: ["De opdracht of vraag die je aan het model geeft", "Een netwerkkaart", "Een HTML-tag", "Een kapotte pixel"], answer: 0 },
+        { q: "Waarom is context belangrijk in een prompt?", options: ["Het helpt de AI beter begrijpen wat je wilt", "Het zet je scherm helderder", "Het maakt je wifi sneller", "Het verwijdert bestanden"], answer: 0 },
+        { q: "Wat is hallucinatie bij AI?", options: ["Wanneer AI iets verzint dat betrouwbaar klinkt maar niet klopt", "Een animatie-effect", "Een soort kabel", "Een databasebackup"], answer: 0 },
+        { q: "Wat is een goede manier om AI-output te gebruiken voor schoolwerk?", options: ["Als hulpbron, daarna zelf controleren, begrijpen en aanpassen", "Alles blind inleveren", "Bronnen nooit controleren", "Je naam verwijderen"], answer: 0 },
+        { q: "Wat betekent 'bias' in AI?", options: ["Een vertekening in data of uitkomsten", "Een toetsenbordindeling", "Een soort CSS-class", "Een schermresolutie"], answer: 0 },
+        { q: "Waarom moet je voorzichtig zijn met persoonsgegevens in AI-tools?", options: ["Je weet niet altijd hoe data verwerkt of bewaard wordt", "AI kan geen tekst lezen", "Persoonsgegevens maken kleuren feller", "Het maakt internet gratis"], answer: 0 },
+        { q: "Wat is een iteratieve prompt-aanpak?", options: ["Stap voor stap verbeteren op basis van de vorige output", "Een computer uitzetten", "Een map hernoemen", "Een bestand comprimeren"], answer: 0 },
+        { q: "Wat is multimodale AI?", options: ["AI die met meerdere soorten input kan werken, zoals tekst en beeld", "AI met twee wachtwoorden", "Een ouderwetse printer", "Een kapotte database"], answer: 0 }
+    ],
+    "UX & Toegankelijkheid": [
+        { q: "Wat betekent toegankelijkheid in UI-design?", options: ["Dat zoveel mogelijk mensen de interface goed kunnen gebruiken", "Dat alles alleen op mobiel werkt", "Dat tekst heel klein is", "Dat knoppen verborgen zijn"], answer: 0 },
+        { q: "Waarom is voldoende kleurcontrast belangrijk?", options: ["Tekst en knoppen blijven beter leesbaar", "Het maakt de server sneller", "Het voorkomt alle hackers", "Het verwijdert afbeeldingen"], answer: 0 },
+        { q: "Wat is alt-tekst?", options: ["Tekst die een afbeelding beschrijft voor screenreaders of als de afbeelding niet laadt", "Een alternatief wachtwoord", "Een CSS-grid", "Een cloudfunctie"], answer: 0 },
+        { q: "Waarom moeten knoppen duidelijke labels hebben?", options: ["Gebruikers begrijpen sneller wat er gebeurt bij klikken", "Labels maken RAM vrij", "Labels vervangen databases", "Labels blokkeren cookies"], answer: 0 },
+        { q: "Wat is responsive design?", options: ["Een layout die goed werkt op verschillende schermgroottes", "Een website die terugpraat", "Een antivirusfunctie", "Een kleurenthema"], answer: 0 },
+        { q: "Wat is keyboard navigation?", options: ["Een interface kunnen bedienen met het toetsenbord", "Een toetsenbord schoonmaken", "Een chatbericht sturen", "Een geluidseffect"], answer: 0 },
+        { q: "Waarom zijn foutmeldingen het best concreet?", options: ["Dan weet de gebruiker wat er mis is en hoe het opgelost kan worden", "Dan worden ze langer", "Dan verdwijnen bugs vanzelf", "Dan werkt CSS niet meer"], answer: 0 },
+        { q: "Wat is een focus state?", options: ["Een zichtbare markering van het element dat actief is via toetsenbord of klik", "Een soort camera", "Een serverstatus", "Een databaseveld"], answer: 0 }
+    ]
+};
+
+// MAGIC MERGE SCRIPT DEEL 19: Nieuwe tech- en IT-categorieen.
+for (let category in extraVragenDeel19) {
+    if (questionBank[category]) {
+        questionBank[category].push(...extraVragenDeel19[category]);
+    } else {
+        questionBank[category] = extraVragenDeel19[category];
+    }
+}
+
+const extraVragenDeel20 = {
+    "Windows Server & Active Directory": [
+        { q: "Waarvoor gebruik je Active Directory vooral?", options: ["Gebruikers, computers en rechten centraal beheren", "Afbeeldingen bewerken", "CSS compileren", "Video streamen"], answer: 0 },
+        { q: "Wat is een domain controller?", options: ["Een server die authenticatie en directorydiensten voor een domein levert", "Een router voor thuis", "Een type monitor", "Een JavaScript functie"], answer: 0 },
+        { q: "Waarvoor gebruik je Group Policy?", options: ["Instellingen en regels centraal toepassen op gebruikers of computers", "Bestanden comprimeren", "Een website stylen", "Een printer fysiek reinigen"], answer: 0 },
+        { q: "Wat betekent OU in Active Directory?", options: ["Organizational Unit", "Open Upload", "Output User", "Online Utility"], answer: 0 },
+        { q: "Wat is DNS belangrijk voor in een Windows domein?", options: ["Clients vinden domeincontrollers en services via namen", "Het tekent iconen", "Het vervangt RAM", "Het zet laptops uit"], answer: 0 },
+        { q: "Wat is Kerberos?", options: ["Een authenticatieprotocol dat tickets gebruikt", "Een bestandssysteem", "Een CSS-framework", "Een backupschijf"], answer: 0 },
+        { q: "Waarom geef je gebruikers liever rechten via groepen?", options: ["Groepen maken beheer overzichtelijker en minder foutgevoelig", "Groepen versnellen de CPU", "Groepen wissen logs", "Groepen vervangen antivirus"], answer: 0 },
+        { q: "Wat is een roaming profile?", options: ["Een gebruikersprofiel dat op meerdere computers kan meegaan", "Een mobiel abonnement", "Een firewallpoort", "Een SQL-query"], answer: 0 }
+    ],
+    "PowerShell & Automatisering": [
+        { q: "Wat is PowerShell?", options: ["Een shell en scriptingtaal voor beheer en automatisering", "Een tekenprogramma", "Een netwerkstekker", "Een database-engine"], answer: 0 },
+        { q: "Wat is een cmdlet?", options: ["Een PowerShell-commando met meestal een Werkwoord-ZelfstandigNaam naam", "Een CSS-selector", "Een videoformaat", "Een soort muis"], answer: 0 },
+        { q: "Wat doet Get-Process?", options: ["Lopende processen tonen", "Bestanden verwijderen", "Een website openen", "RAM vervangen"], answer: 0 },
+        { q: "Wat is de pipeline in PowerShell?", options: ["Output van het ene commando doorgeven aan het volgende", "Een waterleiding", "Een HTML-formulier", "Een BIOS instelling"], answer: 0 },
+        { q: "Waarom gebruik je scripts in beheer?", options: ["Herhaalbaar werk sneller en consistenter uitvoeren", "Meer handmatig klikken", "Wachtwoorden zichtbaar maken", "Monitoren kalibreren"], answer: 0 },
+        { q: "Wat doet Where-Object?", options: ["Objecten filteren op voorwaarden", "Een map maken", "Een proces starten zonder parameters", "Een printer delen"], answer: 0 },
+        { q: "Wat is een parameter?", options: ["Een waarde die je aan een commando of functie meegeeft", "Een harde schijf", "Een soort kabel", "Een HTTP statuscode"], answer: 0 },
+        { q: "Waarom is -WhatIf handig?", options: ["Je ziet wat een actie zou doen zonder het echt uit te voeren", "Het maakt internet sneller", "Het tekent grafieken", "Het zet geluid harder"], answer: 0 }
+    ],
+    "Frontend Frameworks": [
+        { q: "Wat is React vooral?", options: ["Een JavaScript library om user interfaces te bouwen", "Een database", "Een besturingssysteem", "Een netwerkprotocol"], answer: 0 },
+        { q: "Wat is een component?", options: ["Een herbruikbaar stuk UI met eigen logica of presentatie", "Een wachtwoord", "Een serverrack", "Een DNS record"], answer: 0 },
+        { q: "Wat betekent state in een frontend app?", options: ["Data die de huidige toestand van de UI bepaalt", "Een land", "Een type kabel", "Een printerstatus alleen"], answer: 0 },
+        { q: "Waarom gebruik je props?", options: ["Om data van parent naar child component door te geven", "Om CSS te verwijderen", "Om een computer te starten", "Om SQL te versleutelen"], answer: 0 },
+        { q: "Wat is routing in een single page app?", options: ["Verschillende schermen tonen op basis van de URL", "Netwerkkabels leggen", "Een harde schijf verdelen", "Een muis instellen"], answer: 0 },
+        { q: "Wat doet build tooling zoals Vite?", options: ["Ontwikkeling en bundling van frontend code versnellen", "Een firewall vervangen", "Een database backuppen", "Een scherm poetsen"], answer: 0 },
+        { q: "Wat is hydration bij server-rendered apps?", options: ["Client-side JavaScript koppelen aan HTML die al door de server is gerenderd", "Water koelen voor servers", "CSS comprimeren", "Een wachtwoord resetten"], answer: 0 },
+        { q: "Waarom splits je code soms in chunks?", options: ["Om niet alle JavaScript in een keer te hoeven laden", "Om bestanden onleesbaar te maken", "Om DNS te vervangen", "Om hardware te repareren"], answer: 0 }
+    ],
+    "Backend Development": [
+        { q: "Wat is middleware in een webserver?", options: ["Code die een request onderweg kan verwerken voordat de route antwoord geeft", "Een monitorstandaard", "Een CSS reset", "Een harde schijf"], answer: 0 },
+        { q: "Wat is authenticatie?", options: ["Controleren wie iemand is", "Controleren wat iemand mag", "Een bestand verkleinen", "Een query sorteren"], answer: 0 },
+        { q: "Wat is autorisatie?", options: ["Controleren welke acties iemand mag uitvoeren", "Controleren of iemand bestaat", "Een server tekenen", "Een laptop opladen"], answer: 0 },
+        { q: "Waarom gebruik je inputvalidatie?", options: ["Om foutieve of gevaarlijke invoer tegen te houden", "Om tekst groter te maken", "Om RAM te wissen", "Om alle cookies toe te staan"], answer: 0 },
+        { q: "Wat is een ORM?", options: ["Een laag die objecten in code koppelt aan database-tabellen", "Een netwerkkaart", "Een beeldschermtype", "Een CSS animatie"], answer: 0 },
+        { q: "Wat is een background job?", options: ["Werk dat buiten de directe request-response flow wordt uitgevoerd", "Een donker thema", "Een verborgen knop", "Een screenshot"], answer: 0 },
+        { q: "Waarom gebruik je logging in backend systemen?", options: ["Om gedrag, fouten en events later te kunnen onderzoeken", "Om code automatisch te vertalen", "Om CSS te laden", "Om hardware te vervangen"], answer: 0 },
+        { q: "Wat is idempotentie bij API endpoints?", options: ["Meerdere keren dezelfde request doen geeft hetzelfde eindresultaat", "Elke request moet anders zijn", "Een endpoint mag geen data lezen", "Een server moet offline zijn"], answer: 0 }
+    ],
+    "Database Ontwerp": [
+        { q: "Wat is normalisatie in databases?", options: ["Data structureren om duplicatie en inconsistentie te verminderen", "Alles in een kolom zetten", "Alle indexes verwijderen", "Een database donker maken"], answer: 0 },
+        { q: "Wat is een foreign key?", options: ["Een verwijzing naar een primaire sleutel in een andere tabel", "Een wachtwoord uit het buitenland", "Een tijdelijke backup", "Een CSS class"], answer: 0 },
+        { q: "Waarom gebruik je indexes?", options: ["Om zoeken en filteren sneller te maken", "Om data mooier te maken", "Om tabellen te verwijderen", "Om RAM te vervangen"], answer: 0 },
+        { q: "Wat is een transactie?", options: ["Een groep database-acties die samen slagen of samen teruggedraaid worden", "Een betaalkaart", "Een kleurenschema", "Een netwerkpoort"], answer: 0 },
+        { q: "Waar staat ACID voor bij databases?", options: ["Atomicity, Consistency, Isolation, Durability", "Auto Code Internet Data", "Active Cloud Identity Device", "Array Cache Input Disk"], answer: 0 },
+        { q: "Wat is denormalisatie?", options: ["Bewust data dubbel opslaan voor performance of eenvoud", "Alles normaler maken", "Alle tabellen wissen", "Een database offline zetten"], answer: 0 },
+        { q: "Wat is een migration?", options: ["Een versiebeheerbare wijziging aan het database-schema", "Een verhuizing van vogels", "Een video-export", "Een firewallregel"], answer: 0 },
+        { q: "Wat is een composite key?", options: ["Een sleutel die uit meerdere kolommen bestaat", "Een sleutel van plastic", "Een API-token", "Een DNS-record"], answer: 0 }
+    ],
+    "Observability & Monitoring": [
+        { q: "Wat is monitoring?", options: ["Systemen meten en bewaken om problemen snel te zien", "Alleen screenshots maken", "Code mooier kleuren", "Een router installeren"], answer: 0 },
+        { q: "Wat is een metric?", options: ["Een meetwaarde zoals CPU-gebruik of responstijd", "Een wachtwoord", "Een HTML-tag", "Een type muis"], answer: 0 },
+        { q: "Wat is een log?", options: ["Een chronologische registratie van events of fouten", "Een afbeelding", "Een kabel", "Een spreadsheetformule"], answer: 0 },
+        { q: "Wat is tracing?", options: ["Een request door meerdere services volgen", "Een lijn tekenen in Paint", "Een bestand zippen", "Een monitor resetten"], answer: 0 },
+        { q: "Waarom stel je alerts in?", options: ["Om automatisch gewaarschuwd te worden bij afwijkingen", "Om CSS sneller te laden", "Om wachtwoorden te delen", "Om servers te verbergen"], answer: 0 },
+        { q: "Wat is uptime?", options: ["De tijd dat een systeem beschikbaar is", "De tijd dat iemand wakker is", "De snelheid van een fan", "De grootte van RAM"], answer: 0 },
+        { q: "Wat betekent MTTR?", options: ["Mean Time To Recovery/Repair", "Main Terminal Test Route", "Maximum Traffic Transfer Rate", "Manual Ticket Template Rule"], answer: 0 },
+        { q: "Waarom gebruik je dashboards?", options: ["Om belangrijke systeemstatussen overzichtelijk te zien", "Om databases te wissen", "Om tekst te vertalen", "Om laptops te laden"], answer: 0 }
+    ],
+    "Security Operations": [
+        { q: "Wat is een SIEM?", options: ["Een systeem dat security logs verzamelt en analyseert", "Een type monitor", "Een CSS framework", "Een backupkabel"], answer: 0 },
+        { q: "Wat is incident response?", options: ["Het proces om op security-incidenten te reageren", "Een animatie bij fouten", "Een database-index", "Een printerdriver"], answer: 0 },
+        { q: "Wat is IOC in security?", options: ["Indicator of Compromise", "Input Output Cable", "Internet Object Cache", "Internal Office Chat"], answer: 0 },
+        { q: "Waarom is logcorrelatie nuttig?", options: ["Losse events samen kunnen een aanvalspatroon tonen", "Het maakt logs korter", "Het verwijdert virussen automatisch", "Het vervangt backups"], answer: 0 },
+        { q: "Wat is phishing-detectie?", options: ["Herkennen van verdachte berichten of links die gegevens proberen te stelen", "Vissen tellen", "Een website stylen", "Een server patchen zonder test"], answer: 0 },
+        { q: "Wat is least privilege?", options: ["Gebruikers alleen de rechten geven die ze echt nodig hebben", "Iedereen admin maken", "Alle rechten verwijderen", "Alle wachtwoorden gelijk maken"], answer: 0 },
+        { q: "Wat is endpoint protection?", options: ["Beveiliging op apparaten zoals laptops en desktops", "Een laatste punt in CSS", "Een database backup", "Een routerkleur"], answer: 0 },
+        { q: "Waarom oefen je met tabletop exercises?", options: ["Om incidentrespons te oefenen zonder echte crisis", "Om bureaus te testen", "Om RAM te meten", "Om afbeeldingen te comprimeren"], answer: 0 }
+    ],
+    "Netwerk Troubleshooting": [
+        { q: "Wat test je met ping?", options: ["Of een host bereikbaar is en hoe lang antwoord duurt", "De kleur van een website", "De grootte van een database", "De sterkte van een wachtwoord"], answer: 0 },
+        { q: "Wat doet traceroute of tracert?", options: ["De route tonen die pakketten naar een bestemming nemen", "Een bestand tekenen", "Een server uitzetten", "Een backup maken"], answer: 0 },
+        { q: "Wat controleer je met ipconfig of ifconfig?", options: ["IP-adres en netwerkconfiguratie", "Schermhelderheid", "CPU-temperatuur", "HTML-validatie"], answer: 0 },
+        { q: "Wat is packet loss?", options: ["Pakketten die onderweg verloren gaan", "Bestanden in de prullenbak", "Een volle harde schijf", "Een vergeten wachtwoord"], answer: 0 },
+        { q: "Wat is jitter?", options: ["Variatie in vertraging tussen netwerkpakketten", "Een CSS-effect", "Een type RAM", "Een printerfout"], answer: 0 },
+        { q: "Waarom controleer je DNS bij verbindingsproblemen?", options: ["Naamomzetting kan stuk zijn terwijl IP-connectiviteit nog werkt", "DNS bepaalt je schermresolutie", "DNS vervangt DHCP", "DNS wist cookies"], answer: 0 },
+        { q: "Wat doet nslookup?", options: ["DNS-records opvragen", "Bestanden zoeken", "Schijven formatteren", "Processen stoppen"], answer: 0 },
+        { q: "Wat is een duplex mismatch?", options: ["Apparaten gebruiken verschillende duplex-instellingen waardoor netwerkproblemen ontstaan", "Twee monitoren hebben andere kleuren", "Een dubbele database", "Een verkeerd lettertype"], answer: 0 }
+    ],
+    "ITIL & Servicemanagement": [
+        { q: "Wat is incident management?", options: ["Storingen zo snel mogelijk herstellen", "Nieuwe features ontwerpen", "Alle hardware kopen", "CSS testen"], answer: 0 },
+        { q: "Wat is problem management?", options: ["Oorzaken van terugkerende incidenten vinden en oplossen", "Tickets sneller sluiten zonder oplossing", "Wachtwoorden delen", "Alle logs verwijderen"], answer: 0 },
+        { q: "Wat is change management?", options: ["Wijzigingen gecontroleerd plannen, beoordelen en uitvoeren", "Een thema wisselen", "Een monitor vervangen zonder plan", "Een database willekeurig aanpassen"], answer: 0 },
+        { q: "Wat is een CAB?", options: ["Change Advisory Board", "Cloud Access Button", "Central API Backup", "Computer Audio Bus"], answer: 0 },
+        { q: "Waarom is een kennisbank nuttig?", options: ["Oplossingen en procedures zijn sneller terug te vinden", "Het maakt CPU's sneller", "Het vervangt netwerkbeheer", "Het wist oude tickets"], answer: 0 },
+        { q: "Wat is een service catalogus?", options: ["Een overzicht van beschikbare IT-diensten", "Een lijst met kleuren", "Een verzameling muizen", "Een DNS-cache"], answer: 0 },
+        { q: "Wat is een workaround?", options: ["Een tijdelijke oplossing om impact te verminderen", "Een definitieve root cause", "Een wachtwoordreset", "Een type kabel"], answer: 0 },
+        { q: "Wat betekent prioriteit in tickets meestal?", options: ["Combinatie van impact en urgentie", "Alleen wie het hardst klaagt", "De leeftijd van de computer", "De lengte van de foutmelding"], answer: 0 }
+    ]
+};
+
+// MAGIC MERGE SCRIPT DEEL 20: Extra tech- en IT-categorieen.
+for (let category in extraVragenDeel20) {
+    if (questionBank[category]) {
+        questionBank[category].push(...extraVragenDeel20[category]);
+    } else {
+        questionBank[category] = extraVragenDeel20[category];
+    }
+}
+
 // Zorg ervoor dat dit he-le-maal onderaan staat:
 module.exports = questionBank;
