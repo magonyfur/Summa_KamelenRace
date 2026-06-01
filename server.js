@@ -4,7 +4,6 @@ const { Server } = require('socket.io');
 const fs = require('fs');
 const path = require('path');
 
-// 📚 LAAD DE VRAGENLIJST UIT HET ANDERE BESTAND
 const questionBankFile = path.join(__dirname, 'questions.js');
 let questionBank = loadQuestionBank();
 let questionBankMtimeMs = fs.statSync(questionBankFile).mtimeMs;
@@ -19,14 +18,12 @@ let rooms = {};
 let leaderboard = {};
 const ADMIN_PASSWORDS = ["awooDestiny23@!", "Summa_Desi", "Lynxies"];
 
-// --- GLOBALE INSTELLINGEN ---
 let globalSettings = {
-    theme: 'desert', // Opties: 'desert', 'hacker', 'space', 'neon'
-    maxPlayers: 6,    // Standaard max spelers
-    questionsPerRound: 10 // Standaardwaarde: 10 vragen per potje
+    theme: 'desert',
+    maxPlayers: 6,
+    questionsPerRound: 10
 };
 
-// Functie om gewijzigde vragen keihard op te slaan in je bestand!
 function saveQuestionsToFile() {
     const fileContent = "const questionBank = " + JSON.stringify(questionBank, null, 4) + ";\n\nmodule.exports = questionBank;";
     fs.writeFileSync(questionBankFile, fileContent, 'utf8');
@@ -47,49 +44,41 @@ function refreshQuestionBank() {
     return questionBank;
 }
 
-// --- PERSISTENT LEADERBOARD ---
 const leaderboardFile = path.join(__dirname, 'leaderboard.json');
 if (fs.existsSync(leaderboardFile)) {
-    try { leaderboard = JSON.parse(fs.readFileSync(leaderboardFile, 'utf8')); } 
+    try { leaderboard = JSON.parse(fs.readFileSync(leaderboardFile, 'utf8')); }
     catch (e) { leaderboard = {}; }
 }
 function saveLeaderboard() { fs.writeFileSync(leaderboardFile, JSON.stringify(leaderboard, null, 2)); }
 
-// --- GET RANDOM QUESTION & SHUFFLE OPTIONS ---
 function getRandomQuestion(cats) {
     const bank = refreshQuestionBank();
     let pool = [];
     cats.forEach(c => { if(bank[c]) pool = pool.concat(bank[c]); });
-    if(pool.length === 0) pool = bank["HTML & CSS"]; // Fallback
+    if(pool.length === 0) pool = bank["HTML & CSS"];
 
     const originalQuestion = pool[Math.floor(Math.random() * pool.length)];
-    
-    // Maak een kopie zodat we de originele database niet wijzigen
     let shuffledQuestion = {
         q: originalQuestion.q,
         options: [...originalQuestion.options],
-        answer: originalQuestion.answer 
+        answer: originalQuestion.answer
     };
 
     const correctAnswerText = originalQuestion.options[originalQuestion.answer];
-
-    // Hussel de opties door elkaar
     for (let i = shuffledQuestion.options.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffledQuestion.options[i], shuffledQuestion.options[j]] = [shuffledQuestion.options[j], shuffledQuestion.options[i]];
     }
-
-    // Update de index van het juiste antwoord
     shuffledQuestion.answer = shuffledQuestion.options.indexOf(correctAnswerText);
     return shuffledQuestion;
 }
 
-// --- VEILIGE ROOM COPY VOOR ADMIN (Voorkomt crash!) ---
 function getSafeRooms() {
     let safe = {};
     for (let id in rooms) {
         safe[id] = {
             categories: rooms[id].categories, status: rooms[id].status, countdown: rooms[id].countdown,
+            countdownStarted: rooms[id].countdownStarted, creatorId: rooms[id].creatorId,
             players: Object.values(rooms[id].players).map(p => ({ name: p.name, progress: p.progress })),
             playerCount: Object.keys(rooms[id].players).length
         };
@@ -99,41 +88,74 @@ function getSafeRooms() {
 
 function broadcastRooms() { io.emit('activeRoomsList', Object.keys(rooms)); }
 
-// --- SOCKET LOGICA ---
+function broadcastLobbyUpdate(roomName) {
+    const room = rooms[roomName];
+    if (!room) return;
+    const lobbyPlayers = Object.values(room.players).map(p => ({
+        id: p.id, name: p.name, color: p.color
+    }));
+    io.to(roomName).emit('lobbyUpdate', {
+        players: lobbyPlayers,
+        creatorId: room.creatorId,
+        countdownStarted: room.countdownStarted
+    });
+}
+
 io.on('connection', (socket) => {
     const bank = refreshQuestionBank();
     socket.emit('settingsUpdated', globalSettings);
     socket.emit('updateLeaderboard', leaderboard);
     socket.emit('activeRoomsList', Object.keys(rooms));
-    socket.emit('availableCategories', Object.keys(bank)); // Stuur dynamische categorieën
+    socket.emit('availableCategories', Object.keys(bank));
+    socket.emit('mySocketId', socket.id);
 
     socket.on('checkRoom', (name) => { socket.emit('roomStatus', !!rooms[name]); });
 
     socket.on('joinRoom', ({ playerName, roomName, categories }) => {
         if (!rooms[roomName]) {
-            rooms[roomName] = { 
-                categories: categories, players: {}, hasWinner: false, 
-                status: 'waiting', countdown: 30, timerId: null 
+            rooms[roomName] = {
+                categories: categories, players: {}, hasWinner: false,
+                status: 'waiting', countdown: 30, timerId: null,
+                creatorId: socket.id,
+                countdownStarted: false
             };
-            startTimer(roomName);
             broadcastRooms();
         }
         const room = rooms[roomName];
         if (room.status === 'playing') return socket.emit('errorMessage', 'Race al bezig!');
         if (Object.keys(room.players).length >= globalSettings.maxPlayers) {
-          return socket.emit('errorMessage', `Kamer is vol! (Max ${globalSettings.maxPlayers})`);
+            return socket.emit('errorMessage', `Kamer is vol! (Max ${globalSettings.maxPlayers})`);
         }
-        
+
         socket.join(roomName);
         socket.roomId = roomName;
-        room.players[socket.id] = { 
-            id: socket.id, name: playerName, progress: 0, 
-            color: '#'+Math.floor(Math.random()*16777215).toString(16), 
-            currentQuestion: getRandomQuestion(room.categories) 
+        room.players[socket.id] = {
+            id: socket.id, name: playerName, progress: 0,
+            color: '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0'),
+            currentQuestion: getRandomQuestion(room.categories)
         };
-        
+
+        const isCreator = room.creatorId === socket.id;
         io.to(roomName).emit('updateGame', room.players);
-        socket.emit('waitingPhase', { tijd: room.countdown, categories: room.categories });
+        socket.emit('waitingPhase', {
+            tijd: room.countdown,
+            categories: room.categories,
+            isCreator,
+            countdownStarted: room.countdownStarted
+        });
+
+        broadcastLobbyUpdate(roomName);
+        updateAdmin();
+    });
+
+    socket.on('creatorStartCountdown', () => {
+        const room = rooms[socket.roomId];
+        if (!room || room.status !== 'waiting' || room.countdownStarted) return;
+        if (room.creatorId !== socket.id) return;
+
+        room.countdownStarted = true;
+        io.to(socket.roomId).emit('countdownStarted', room.countdown);
+        startTimer(socket.roomId);
         updateAdmin();
     });
 
@@ -144,19 +166,17 @@ io.on('connection', (socket) => {
 
         if (idx === p.currentQuestion.answer) {
             const stapGrootte = 100 / globalSettings.questionsPerRound;
-            p.progress += stapGrootte; // 10 goede antwoorden = finish
-            if (p.progress > 100) {
-                p.progress = 100;
-            }
-            io.to(socket.roomId).emit('camelStepped', socket.id); 
-            
+            p.progress += stapGrootte;
+            if (p.progress > 100) p.progress = 100;
+            io.to(socket.roomId).emit('camelStepped', socket.id);
+
             if (p.progress >= 100) {
                 room.hasWinner = true;
                 leaderboard[p.name] = (leaderboard[p.name] || 0) + 1;
                 saveLeaderboard();
                 io.emit('updateLeaderboard', leaderboard);
                 io.to(socket.roomId).emit('winner', p.name);
-                setTimeout(() => resetRoom(socket.roomId), 6000); 
+                setTimeout(() => resetRoom(socket.roomId), 6000);
             } else {
                 p.currentQuestion = getRandomQuestion(room.categories);
                 socket.emit('newQuestion', p.currentQuestion);
@@ -169,46 +189,55 @@ io.on('connection', (socket) => {
         io.to(socket.roomId).emit('updateGame', room.players);
     });
 
-    // --- ADMIN ---
     socket.on('adminLogin', (pass) => {
-        if(ADMIN_PASSWORDS.includes(pass)) {
+        if (ADMIN_PASSWORDS.includes(pass)) {
             const bank = refreshQuestionBank();
-            socket.join('admins'); 
-            // Hier sturen we nu ook de questionBank mee!
-            socket.emit('adminData', { 
-                rooms: getSafeRooms(), 
+            socket.join('admins');
+            socket.emit('adminData', {
+                rooms: getSafeRooms(),
                 leaderboard: leaderboard,
                 questionBank: bank,
                 settings: globalSettings
-            }); 
-        } else { 
-            socket.emit('adminError', 'Fout wachtwoord!'); 
+            });
+        } else {
+            socket.emit('adminError', 'Fout wachtwoord!');
         }
     });
 
-    socket.on('adminForceStart', (name) => { if(rooms[name]) { rooms[name].countdown = 0; } });
-    socket.on('adminDeleteRoom', (name) => { 
-        if(rooms[name]) { 
-            clearInterval(rooms[name].timerId); 
-            io.to(name).emit('errorMessage', 'Kamer gesloten door admin.'); 
-            delete rooms[name]; broadcastRooms(); updateAdmin(); 
-        } 
+    socket.on('adminForceStart', (name) => {
+        if (rooms[name]) {
+            if (!rooms[name].countdownStarted) {
+                rooms[name].countdownStarted = true;
+                io.to(name).emit('countdownStarted', rooms[name].countdown);
+                startTimer(name);
+            } else {
+                rooms[name].countdown = 0;
+            }
+            updateAdmin();
+        }
     });
+
+    socket.on('adminDeleteRoom', (name) => {
+        if (rooms[name]) {
+            clearInterval(rooms[name].timerId);
+            io.to(name).emit('errorMessage', 'Kamer gesloten door admin.');
+            delete rooms[name]; broadcastRooms(); updateAdmin();
+        }
+    });
+
     socket.on('adminResetLeaderboard', () => {
         leaderboard = {}; saveLeaderboard();
         io.emit('updateLeaderboard', leaderboard); updateAdmin();
     });
-    
-    // --- ADMIN: INSTELLINGEN & THEMA ---
+
     socket.on('adminUpdateSettings', (newSettings) => {
         globalSettings.theme = newSettings.theme || globalSettings.theme;
         globalSettings.maxPlayers = newSettings.maxPlayers || globalSettings.maxPlayers;
         globalSettings.questionsPerRound = newSettings.questionsPerRound || globalSettings.questionsPerRound;
-        io.emit('settingsUpdated', globalSettings); // Stuur direct naar ALLE spelers
+        io.emit('settingsUpdated', globalSettings);
         updateAdmin();
     });
 
-    // --- ADMIN: VRAGEN BEHEREN ---
     socket.on('adminAddCategory', (catName) => {
         refreshQuestionBank();
         if (!questionBank[catName]) {
@@ -230,7 +259,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('adminAddQuestion', ({ category, questionObj }) => {
-        // questionObj moet zijn: { q: "Vraag?", options: ["A", "B", "C", "D"], answer: 0 }
         refreshQuestionBank();
         if (questionBank[category]) {
             questionBank[category].push(questionObj);
@@ -261,58 +289,68 @@ function startTimer(name) {
             clearInterval(r.timerId);
             r.status = 'playing';
             io.to(name).emit('gameStarted');
-            for(let id in r.players) io.to(id).emit('newQuestion', r.players[id].currentQuestion);
+            for (let id in r.players) io.to(id).emit('newQuestion', r.players[id].currentQuestion);
         }
     }, 1000);
 }
 
 function resetRoom(name) {
-    if(!rooms[name]) return;
-    rooms[name].hasWinner = false; 
-    rooms[name].status = 'waiting'; 
-    rooms[name].countdown = 30; 
-    
-    // Kamelen netjes terug naar de startlijn (0%)
-    for(let id in rooms[name].players) { 
-        rooms[name].players[id].progress = 0; 
+    if (!rooms[name]) return;
+    rooms[name].hasWinner = false;
+    rooms[name].status = 'waiting';
+    rooms[name].countdown = 30;
+    rooms[name].countdownStarted = false;
+
+    for (let id in rooms[name].players) {
+        rooms[name].players[id].progress = 0;
         rooms[name].players[id].currentQuestion = getRandomQuestion(rooms[name].categories);
     }
-    
-    io.to(name).emit('backToLobby', 60);
+
+    io.to(name).emit('backToLobby', {
+        tijd: 30,
+        creatorId: rooms[name].creatorId
+    });
     io.to(name).emit('updateGame', rooms[name].players);
-    startTimer(name);
+    broadcastLobbyUpdate(name);
 }
 
 function leave(socket) {
     const name = socket.roomId;
     if (name && rooms[name]) {
+        const wasCreator = rooms[name].creatorId === socket.id;
         delete rooms[name].players[socket.id];
-        if (Object.keys(rooms[name].players).length === 0) { clearInterval(rooms[name].timerId); delete rooms[name]; broadcastRooms(); }
-        else { io.to(name).emit('updateGame', rooms[name].players); }
+
+        if (Object.keys(rooms[name].players).length === 0) {
+            clearInterval(rooms[name].timerId);
+            delete rooms[name];
+            broadcastRooms();
+        } else {
+            if (wasCreator) {
+                const nextPlayerId = Object.keys(rooms[name].players)[0];
+                rooms[name].creatorId = nextPlayerId;
+                io.to(nextPlayerId).emit('youAreNowCreator');
+            }
+            io.to(name).emit('updateGame', rooms[name].players);
+            broadcastLobbyUpdate(name);
+        }
         updateAdmin();
     }
 }
 
-function updateAdmin() { 
+function updateAdmin() {
     const bank = refreshQuestionBank();
-    io.to('admins').emit('adminData', { 
-        rooms: getSafeRooms(), 
+    io.to('admins').emit('adminData', {
+        rooms: getSafeRooms(),
         leaderboard: leaderboard,
-        questionBank: bank, // Zorgt dat de admin live updatet als je een vraag toevoegt!
+        questionBank: bank,
         settings: globalSettings
-    }); 
+    });
 }
 
-// DRAAIT OP POORT 3033 EN TELT ALLE VRAGEN
 server.listen(3033, '0.0.0.0', () => {
     console.log("🚀 Server draait op https://race.magsec.nl");
-    
-    // Bereken het totaal aantal vragen in alle categorieën
     const bank = refreshQuestionBank();
     let totalQuestions = 0;
-    for (let category in bank) {
-        totalQuestions += bank[category].length;
-    }
-    
+    for (let category in bank) totalQuestions += bank[category].length;
     console.log(`📚 Totaal aantal vragen succesvol geladen: ${totalQuestions} vragen!`);
 });
