@@ -18,6 +18,7 @@ Een real-time multiplayer quiz-racegame gebouwd voor Summa ICT. Spelers beantwoo
 - **Multiplayer kamers** — meerdere kamers tegelijk, elke kamer heeft zijn eigen race
 - **Host-systeem** — de maker van een kamer is de host en bepaalt wanneer de countdown start
 - **Minimaal/maximaal spelers** — de countdown kan pas starten als er genoeg spelers zijn (standaard 4–8, instelbaar door admin)
+- **Vraagtimer** — elke speler heeft 10 seconden per vraag; een aflopende balk wordt rood bij urgentie en bij timeout volgt automatisch een nieuwe vraag
 - **Quiz-categorieën** — spelers kiezen zelf welke categorieën ze willen racen (HTML & CSS, JavaScript, Python, etc.)
 - **Thema's** — meer dan 30 visuele thema's instelbaar door de admin
 - **Leaderboard** — persistente ranglijst van winnaars over alle sessies
@@ -125,8 +126,8 @@ Lobby → Wachtkamer → Countdown → Race → Winnaar → Wachtkamer
 
 1. Speler vult naam en kamer in, selecteert categorieën
 2. Speler belandt in de wachtkamer; host ziet een start-knop
-3. Host drukt op start (minimaal aantal spelers vereist) → 30 seconden countdown
-4. Race begint: elke speler krijgt eigen vragen; goed antwoord = kameel stapt vooruit
+3. Host drukt op start (minimaal aantal spelers vereist) → 10 seconden countdown
+4. Race begint: elke speler krijgt eigen vragen en heeft 10 seconden per vraag; goed antwoord = kameel stapt vooruit
 5. Eerste speler op 100% wint; na 6 seconden reset de kamer naar de wachtkamer
 
 ### Socket.IO events (selectie)
@@ -140,6 +141,7 @@ Lobby → Wachtkamer → Countdown → Race → Winnaar → Wachtkamer
 | `countdownStarted` | server → client | Countdown is gestart door de host |
 | `gameStarted` | server → client | Race begint, eerste vraag volgt |
 | `submitAnswer` | client → server | Speler stuurt antwoord in |
+| `questionTimeout` | server → client | Tijd voor deze vraag is verstreken |
 | `camelStepped` | server → client | Kameel mag een stap vooruit animeren |
 | `winner` | server → client | Winnaar bekend |
 | `youAreNowCreator` | server → client | Speler is de nieuwe host geworden |
