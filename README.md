@@ -68,7 +68,6 @@ Bereikbaar via `http://localhost:3033/admin`
 
 **Wachtwoorden:**
 ```
-Summa_Desi
 Lynxies
 ```
 
