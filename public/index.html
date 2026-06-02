@@ -95,6 +95,25 @@
 
         /* Host start section */
         #creatorStartSection { display: none; }
+
+        .player-count-bar {
+            margin: 0 0 16px;
+            text-align: center;
+        }
+        .player-count-bar #playerCountLabel {
+            font-size: 14px; font-weight: 900; color: #7f6a4d;
+            display: block; margin-bottom: 8px;
+        }
+        .count-track {
+            width: 220px; height: 10px; margin: 0 auto;
+            background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;
+        }
+        .count-fill {
+            height: 100%; border-radius: 10px; width: 0%;
+            background: linear-gradient(90deg, #fdcb6e, #e17055);
+            transition: width 0.4s ease, background 0.4s ease;
+        }
+        .count-fill.ready { background: linear-gradient(90deg, #00b894, #00cec9); }
         .host-hint {
             font-size: 15px; font-weight: 700; color: #7f6a4d;
             margin: 0 0 16px; padding: 12px 20px;
@@ -370,7 +389,13 @@
 
                         <div id="creatorStartSection">
                             <p class="host-hint">✨ Jij bent de host! Start de race zodra iedereen er is.</p>
-                            <button id="btnStartCountdown">🚀 Start de Race!</button>
+                            <div id="playerCountBar" class="player-count-bar">
+                                <span id="playerCountLabel">0 / 4 spelers</span>
+                                <div class="count-track">
+                                    <div id="countFill" class="count-fill"></div>
+                                </div>
+                            </div>
+                            <button id="btnStartCountdown" disabled>⏳ Wacht op spelers...</button>
                         </div>
 
                         <div id="waitingForCreator">
@@ -442,6 +467,8 @@
         let isLocked = false;
         let mySocketId = null;
         let amICreator = false;
+        let minPlayers = 4;
+        let maxPlayers = 8;
 
         socket.on('mySocketId', (id) => { mySocketId = id; });
 
@@ -454,6 +481,33 @@
             } else {
                 creatorStartSection.style.display = 'none';
                 waitingForCreator.style.display = 'block';
+            }
+        }
+
+        function updateStartButton(currentCount) {
+            const btn = document.getElementById('btnStartCountdown');
+            const fill = document.getElementById('countFill');
+            const label = document.getElementById('playerCountLabel');
+            const pct = Math.min(100, (currentCount / minPlayers) * 100);
+
+            label.innerText = `${currentCount} / ${minPlayers} spelers aanwezig (max ${maxPlayers})`;
+            fill.style.width = pct + '%';
+
+            if (currentCount >= minPlayers) {
+                fill.classList.add('ready');
+                btn.disabled = false;
+                btn.innerText = '🚀 Start de Race!';
+                btn.style.animation = 'pulse 2s infinite';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+            } else {
+                fill.classList.remove('ready');
+                const needed = minPlayers - currentCount;
+                btn.disabled = true;
+                btn.innerText = `⏳ Nog ${needed} speler${needed !== 1 ? 's' : ''} nodig...`;
+                btn.style.animation = 'none';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
             }
         }
 
@@ -576,6 +630,7 @@
 
         socket.on('lobbyUpdate', (data) => {
             renderLobbyPlayers(data.players, data.creatorId);
+            if (amICreator) updateStartButton(data.players.length);
             if (data.countdownStarted && wsPregame.style.display !== 'none') {
                 wsPregame.style.display = 'none';
                 wsCountdown.style.display = 'block';
@@ -596,6 +651,8 @@
             if (waitingScreen.style.display !== 'none' && wsPregame.style.display !== 'none') {
                 creatorStartSection.style.display = 'block';
                 waitingForCreator.style.display = 'none';
+                const currentCount = document.querySelectorAll('.lobby-player-card').length;
+                updateStartButton(currentCount);
             }
             const toast = document.createElement('div');
             toast.className = 'creator-notification';
@@ -645,6 +702,18 @@
         socket.on('settingsUpdated', (settings) => {
             document.body.className = '';
             document.body.classList.add(`theme-${settings.theme}`);
+            if (settings.minPlayers) minPlayers = settings.minPlayers;
+            if (settings.maxPlayers) maxPlayers = settings.maxPlayers;
+        });
+
+        socket.on('notEnoughPlayers', (data) => {
+            const needed = data.min - data.current;
+            const toast = document.createElement('div');
+            toast.className = 'creator-notification';
+            toast.style.background = 'linear-gradient(135deg, #e17055, #d63031)';
+            toast.innerText = `⚠️ Nog ${needed} speler${needed !== 1 ? 's' : ''} nodig om te starten!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         });
 
         // ── QUIZ ──

@@ -20,7 +20,8 @@ const ADMIN_PASSWORDS = ["awooDestiny23@!", "Summa_Desi", "Lynxies"];
 
 let globalSettings = {
     theme: 'desert',
-    maxPlayers: 6,
+    minPlayers: 4,
+    maxPlayers: 8,
     questionsPerRound: 10
 };
 
@@ -153,6 +154,12 @@ io.on('connection', (socket) => {
         if (!room || room.status !== 'waiting' || room.countdownStarted) return;
         if (room.creatorId !== socket.id) return;
 
+        const currentCount = Object.keys(room.players).length;
+        if (currentCount < globalSettings.minPlayers) {
+            socket.emit('notEnoughPlayers', { current: currentCount, min: globalSettings.minPlayers });
+            return;
+        }
+
         room.countdownStarted = true;
         io.to(socket.roomId).emit('countdownStarted', room.countdown);
         startTimer(socket.roomId);
@@ -232,7 +239,8 @@ io.on('connection', (socket) => {
 
     socket.on('adminUpdateSettings', (newSettings) => {
         globalSettings.theme = newSettings.theme || globalSettings.theme;
-        globalSettings.maxPlayers = newSettings.maxPlayers || globalSettings.maxPlayers;
+        if (newSettings.minPlayers) globalSettings.minPlayers = Math.max(1, parseInt(newSettings.minPlayers));
+        if (newSettings.maxPlayers) globalSettings.maxPlayers = Math.max(globalSettings.minPlayers, parseInt(newSettings.maxPlayers));
         globalSettings.questionsPerRound = newSettings.questionsPerRound || globalSettings.questionsPerRound;
         io.emit('settingsUpdated', globalSettings);
         updateAdmin();
