@@ -181,21 +181,6 @@
         #quiz-container { display: none; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
         #questionText { font-size: 24px; color: #2d3436; min-height: 70px; display: flex; align-items: center; justify-content: center; }
 
-        .question-timer-row {
-            width: 100%; height: 10px; background: rgba(0,0,0,0.08);
-            border-radius: 6px; overflow: hidden; margin-bottom: 4px;
-        }
-        .question-timer-fill {
-            height: 100%; width: 100%; border-radius: 6px;
-            background: linear-gradient(90deg, #00b894, #fdcb6e);
-            transition: width 1s linear, background 0.5s ease;
-        }
-        .question-timer-fill.urgent { background: linear-gradient(90deg, #d63031, #e17055); }
-        .question-timer-label {
-            text-align: right; font-size: 12px; font-weight: 900;
-            color: #b2bec3; margin-bottom: 10px;
-        }
-        .question-timer-label.urgent { color: #d63031; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .option-btn {
             background: linear-gradient(135deg, #0984e3, #6c5ce7);
@@ -211,7 +196,7 @@
         .track-container { width: 100%; background: #ffeaa7; border-radius: 20px; padding: 20px; border: 4px solid #fdcb6e; box-sizing: border-box; box-shadow: inset 0 5px 15px rgba(0,0,0,0.1); }
         .track { border-bottom: 4px dashed #e17055; margin: 35px 0; position: relative; height: 50px; }
         .player-label { position: absolute; font-size: 12px; font-weight: 900; top: -20px; background: white; padding: 4px 10px; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); white-space: nowrap; left: 50%; transform: translateX(-50%); }
-        #finish { position: absolute; right: 0; top: -15px; bottom: -5px; width: 20px; background: repeating-linear-gradient(45deg, #2d3436, #2d3436 10px, white 10px, white 20px); border-radius: 5px; z-index: 1; }
+        .finish-flag { position: absolute; right: 0; top: -15px; bottom: -5px; width: 20px; background: repeating-linear-gradient(45deg, #2d3436, #2d3436 10px, white 10px, white 20px); border-radius: 5px; z-index: 1; }
 
         .progress-badge {
             position: absolute; top: -20px; right: 24px;
@@ -267,7 +252,7 @@
         }
         .camel {
             width: 60px; height: 60px; position: absolute; bottom: 10px; left: 0;
-            transition: left 0.1s linear, transform 0.2s; z-index: 2;
+            transition: left 0.4s ease-out, transform 0.2s; z-index: 2;
             display: flex; align-items: center; justify-content: center;
             visibility: hidden;
         }
@@ -435,10 +420,6 @@
                 </div>
 
                 <div id="quiz-container" class="panel">
-                    <div class="question-timer-row">
-                        <div class="question-timer-fill" id="qTimerFill"></div>
-                    </div>
-                    <div class="question-timer-label"><span id="qTimerSecs">10</span>s</div>
                     <h2 id="questionText">Vraag laden...</h2>
                     <div class="options-grid" id="optionsGrid"></div>
                 </div>
@@ -489,40 +470,6 @@
         let amICreator = false;
         let minPlayers = 4;
         let maxPlayers = 8;
-
-        const QUESTION_SECS = 10;
-        let qTimerInterval = null;
-
-        function startQuestionTimer() {
-            clearQuestionTimer();
-            let secsLeft = QUESTION_SECS;
-            const fill = document.getElementById('qTimerFill');
-            const label = document.getElementById('qTimerSecs');
-            const labelRow = document.querySelector('.question-timer-label');
-            fill.style.transition = 'none';
-            fill.style.width = '100%';
-            fill.classList.remove('urgent');
-            labelRow.classList.remove('urgent');
-            label.innerText = QUESTION_SECS;
-            // Force reflow so the transition restart works
-            fill.getBoundingClientRect();
-            fill.style.transition = 'width 1s linear, background 0.5s ease';
-
-            qTimerInterval = setInterval(() => {
-                secsLeft--;
-                label.innerText = secsLeft;
-                fill.style.width = (secsLeft / QUESTION_SECS * 100) + '%';
-                if (secsLeft <= 3) {
-                    fill.classList.add('urgent');
-                    labelRow.classList.add('urgent');
-                }
-                if (secsLeft <= 0) clearQuestionTimer();
-            }, 1000);
-        }
-
-        function clearQuestionTimer() {
-            if (qTimerInterval) { clearInterval(qTimerInterval); qTimerInterval = null; }
-        }
 
         socket.on('mySocketId', (id) => { mySocketId = id; });
 
@@ -647,7 +594,6 @@
 
         btnLeave.onclick = () => {
             if (confirm("Weet je zeker dat je deze kamer wilt verlaten?")) {
-                clearQuestionTimer();
                 socket.emit('leaveRoom');
                 gameArea.style.display = 'none'; lobbyDiv.style.display = 'block';
                 quizContainer.style.display = 'none'; waitingScreen.style.display = 'none';
@@ -717,7 +663,6 @@
         });
 
         socket.on('backToLobby', (data) => {
-            clearQuestionTimer();
             winnerBanner.style.display = 'none';
             quizContainer.style.display = 'none';
             waitingScreen.style.display = 'block';
@@ -777,7 +722,6 @@
             isLocked = false;
             questionText.innerText = qData.q;
             optionsGrid.innerHTML = '';
-            startQuestionTimer();
             qData.options.forEach((optie, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
@@ -798,20 +742,24 @@
             });
         });
 
-        socket.on('updateGame', (players) => {
+        let renderedPlayerIds = [];
+
+        function buildTracks(players) {
             tracksDiv.innerHTML = '';
+            renderedPlayerIds = Object.keys(players);
             for (let id in players) {
                 const p = players[id];
                 const track = document.createElement('div');
                 track.className = 'track';
-                track.style.setProperty('--progress', p.progress + '%');
+                track.dataset.pid = id;
 
                 const finish = document.createElement('div');
-                finish.id = 'finish';
+                finish.className = 'finish-flag';
                 track.appendChild(finish);
 
                 const progressBadge = document.createElement('div');
                 progressBadge.className = 'progress-badge';
+                progressBadge.id = `badge-${id}`;
                 progressBadge.innerText = `${Math.round(p.progress)}%`;
                 track.appendChild(progressBadge);
 
@@ -821,7 +769,6 @@
                 camelWrapper.style.left = p.progress + '%';
 
                 const emojiSpan = document.createElement('span');
-                emojiSpan.id = `emoji-${id}`;
                 emojiSpan.className = 'flipped-emoji';
                 emojiSpan.innerText = '🐪';
                 camelWrapper.appendChild(emojiSpan);
@@ -835,7 +782,27 @@
                 track.appendChild(camelWrapper);
                 tracksDiv.appendChild(track);
             }
-            const count = Object.keys(players).length;
+        }
+
+        socket.on('updateGame', (players) => {
+            const ids = Object.keys(players);
+            const needsRebuild = ids.length !== renderedPlayerIds.length ||
+                ids.some(id => !renderedPlayerIds.includes(id));
+
+            if (needsRebuild) {
+                buildTracks(players);
+            } else {
+                // Soepel: alleen posities en badges bijwerken
+                for (let id in players) {
+                    const p = players[id];
+                    const camel = document.getElementById(`camel-${id}`);
+                    if (camel) camel.style.left = p.progress + '%';
+                    const badge = document.getElementById(`badge-${id}`);
+                    if (badge) badge.innerText = `${Math.round(p.progress)}%`;
+                }
+            }
+
+            const count = ids.length;
             playerCount.innerText = `${count} ${count === 1 ? 'racer' : 'racers'}`;
         });
 
@@ -860,18 +827,7 @@
             });
         });
 
-        socket.on('questionTimeout', () => {
-            clearQuestionTimer();
-            isLocked = true;
-            const fill = document.getElementById('qTimerFill');
-            fill.style.width = '0%';
-            fill.classList.add('urgent');
-            questionText.innerText = '⏰ Tijd voorbij! Je krijgt een nieuwe vraag...';
-            optionsGrid.innerHTML = '';
-        });
-
         socket.on('winner', (winnerName) => {
-            clearQuestionTimer();
             quizContainer.style.display = 'none';
             winnerBanner.innerHTML = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆<br><small style="font-size:14px;opacity:0.85">De wachtkamer wordt zo herladen...</small>`;
             winnerBanner.style.display = 'block';
@@ -880,7 +836,6 @@
 
         socket.on('errorMessage', (msg) => {
             if (msg.includes('Fout!')) {
-                clearQuestionTimer();
                 questionText.innerText = `❌ ${msg}`;
                 optionsGrid.innerHTML = '';
             } else {

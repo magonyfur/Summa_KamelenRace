@@ -25,32 +25,6 @@ let globalSettings = {
     questionsPerRound: 10
 };
 
-const QUESTION_TIME = 10; // seconden per vraag
-
-function sendQuestionToPlayer(socketId, roomName) {
-    const room = rooms[roomName];
-    if (!room || !room.players[socketId]) return;
-    const p = room.players[socketId];
-
-    if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
-
-    io.to(socketId).emit('newQuestion', p.currentQuestion);
-
-    p.questionTimerId = setTimeout(() => {
-        if (!rooms[roomName] || !rooms[roomName].players[socketId]) return;
-        if (rooms[roomName].hasWinner || rooms[roomName].status !== 'playing') return;
-        const player = rooms[roomName].players[socketId];
-        player.currentQuestion = getRandomQuestion(rooms[roomName].categories);
-        player.questionTimerId = null;
-        io.to(socketId).emit('questionTimeout');
-        setTimeout(() => {
-            if (!rooms[roomName] || !rooms[roomName].players[socketId]) return;
-            if (rooms[roomName].hasWinner || rooms[roomName].status !== 'playing') return;
-            sendQuestionToPlayer(socketId, roomName);
-        }, 1500);
-    }, QUESTION_TIME * 1000);
-}
-
 function saveQuestionsToFile() {
     const fileContent = "const questionBank = " + JSON.stringify(questionBank, null, 4) + ";\n\nmodule.exports = questionBank;";
     fs.writeFileSync(questionBankFile, fileContent, 'utf8');
@@ -81,23 +55,18 @@ function saveLeaderboard() { fs.writeFileSync(leaderboardFile, JSON.stringify(le
 function getRandomQuestion(cats) {
     const bank = refreshQuestionBank();
     let pool = [];
-    cats.forEach(c => { if(bank[c]) pool = pool.concat(bank[c]); });
-    if(pool.length === 0) pool = bank["HTML & CSS"];
+    cats.forEach(c => { if (bank[c]) pool = pool.concat(bank[c]); });
+    if (pool.length === 0) pool = bank["HTML & CSS"];
 
-    const originalQuestion = pool[Math.floor(Math.random() * pool.length)];
-    let shuffledQuestion = {
-        q: originalQuestion.q,
-        options: [...originalQuestion.options],
-        answer: originalQuestion.answer
-    };
-
-    const correctAnswerText = originalQuestion.options[originalQuestion.answer];
-    for (let i = shuffledQuestion.options.length - 1; i > 0; i--) {
+    const original = pool[Math.floor(Math.random() * pool.length)];
+    const correctText = original.options[original.answer];
+    const shuffled = { q: original.q, options: [...original.options], answer: original.answer };
+    for (let i = shuffled.options.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffledQuestion.options[i], shuffledQuestion.options[j]] = [shuffledQuestion.options[j], shuffledQuestion.options[i]];
+        [shuffled.options[i], shuffled.options[j]] = [shuffled.options[j], shuffled.options[i]];
     }
-    shuffledQuestion.answer = shuffledQuestion.options.indexOf(correctAnswerText);
-    return shuffledQuestion;
+    shuffled.answer = shuffled.options.indexOf(correctText);
+    return shuffled;
 }
 
 function getSafeRooms() {
@@ -118,9 +87,7 @@ function broadcastRooms() { io.emit('activeRoomsList', Object.keys(rooms)); }
 function broadcastLobbyUpdate(roomName) {
     const room = rooms[roomName];
     if (!room) return;
-    const lobbyPlayers = Object.values(room.players).map(p => ({
-        id: p.id, name: p.name, color: p.color
-    }));
+    const lobbyPlayers = Object.values(room.players).map(p => ({ id: p.id, name: p.name, color: p.color }));
     io.to(roomName).emit('lobbyUpdate', {
         players: lobbyPlayers,
         creatorId: room.creatorId,
@@ -141,18 +108,16 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', ({ playerName, roomName, categories }) => {
         if (!rooms[roomName]) {
             rooms[roomName] = {
-                categories: categories, players: {}, hasWinner: false,
+                categories, players: {}, hasWinner: false,
                 status: 'waiting', countdown: 10, timerId: null,
-                creatorId: socket.id,
-                countdownStarted: false
+                creatorId: socket.id, countdownStarted: false
             };
             broadcastRooms();
         }
         const room = rooms[roomName];
         if (room.status === 'playing') return socket.emit('errorMessage', 'Race al bezig!');
-        if (Object.keys(room.players).length >= globalSettings.maxPlayers) {
+        if (Object.keys(room.players).length >= globalSettings.maxPlayers)
             return socket.emit('errorMessage', `Kamer is vol! (Max ${globalSettings.maxPlayers})`);
-        }
 
         socket.join(roomName);
         socket.roomId = roomName;
@@ -164,13 +129,7 @@ io.on('connection', (socket) => {
 
         const isCreator = room.creatorId === socket.id;
         io.to(roomName).emit('updateGame', room.players);
-        socket.emit('waitingPhase', {
-            tijd: room.countdown,
-            categories: room.categories,
-            isCreator,
-            countdownStarted: room.countdownStarted
-        });
-
+        socket.emit('waitingPhase', { tijd: room.countdown, categories: room.categories, isCreator, countdownStarted: room.countdownStarted });
         broadcastLobbyUpdate(roomName);
         updateAdmin();
     });
@@ -197,13 +156,9 @@ io.on('connection', (socket) => {
         if (!room || room.status !== 'playing' || room.hasWinner) return;
         const p = room.players[socket.id];
 
-        // Stop de vraagtimer zodra een antwoord binnenkomt
-        if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
-
         if (idx === p.currentQuestion.answer) {
-            const stapGrootte = 100 / globalSettings.questionsPerRound;
-            p.progress += stapGrootte;
-            if (p.progress > 100) p.progress = 100;
+            const step = 100 / globalSettings.questionsPerRound;
+            p.progress = Math.min(100, p.progress + step);
             io.to(socket.roomId).emit('camelStepped', socket.id);
 
             if (p.progress >= 100) {
@@ -215,12 +170,12 @@ io.on('connection', (socket) => {
                 setTimeout(() => resetRoom(socket.roomId), 6000);
             } else {
                 p.currentQuestion = getRandomQuestion(room.categories);
-                sendQuestionToPlayer(socket.id, socket.roomId);
+                socket.emit('newQuestion', p.currentQuestion);
             }
         } else {
             socket.emit('errorMessage', 'Fout! Strafseconde... Je krijgt een nieuwe vraag.');
             p.currentQuestion = getRandomQuestion(room.categories);
-            setTimeout(() => sendQuestionToPlayer(socket.id, socket.roomId), 1500);
+            setTimeout(() => socket.emit('newQuestion', p.currentQuestion), 1500);
         }
         io.to(socket.roomId).emit('updateGame', room.players);
     });
@@ -229,12 +184,7 @@ io.on('connection', (socket) => {
         if (ADMIN_PASSWORDS.includes(pass)) {
             const bank = refreshQuestionBank();
             socket.join('admins');
-            socket.emit('adminData', {
-                rooms: getSafeRooms(),
-                leaderboard: leaderboard,
-                questionBank: bank,
-                settings: globalSettings
-            });
+            socket.emit('adminData', { rooms: getSafeRooms(), leaderboard, questionBank: bank, settings: globalSettings });
         } else {
             socket.emit('adminError', 'Fout wachtwoord!');
         }
@@ -256,9 +206,6 @@ io.on('connection', (socket) => {
     socket.on('adminDeleteRoom', (name) => {
         if (rooms[name]) {
             clearInterval(rooms[name].timerId);
-            for (let id in rooms[name].players) {
-                if (rooms[name].players[id].questionTimerId) clearTimeout(rooms[name].players[id].questionTimerId);
-            }
             io.to(name).emit('errorMessage', 'Kamer gesloten door admin.');
             delete rooms[name]; broadcastRooms(); updateAdmin();
         }
@@ -329,7 +276,7 @@ function startTimer(name) {
             clearInterval(r.timerId);
             r.status = 'playing';
             io.to(name).emit('gameStarted');
-            for (let id in r.players) sendQuestionToPlayer(id, name);
+            for (let id in r.players) io.to(id).emit('newQuestion', r.players[id].currentQuestion);
         }
     }, 1000);
 }
@@ -342,16 +289,11 @@ function resetRoom(name) {
     rooms[name].countdownStarted = false;
 
     for (let id in rooms[name].players) {
-        const p = rooms[name].players[id];
-        if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
-        p.progress = 0;
-        p.currentQuestion = getRandomQuestion(rooms[name].categories);
+        rooms[name].players[id].progress = 0;
+        rooms[name].players[id].currentQuestion = getRandomQuestion(rooms[name].categories);
     }
 
-    io.to(name).emit('backToLobby', {
-        tijd: 10,
-        creatorId: rooms[name].creatorId
-    });
+    io.to(name).emit('backToLobby', { tijd: 10, creatorId: rooms[name].creatorId });
     io.to(name).emit('updateGame', rooms[name].players);
     broadcastLobbyUpdate(name);
 }
@@ -360,8 +302,6 @@ function leave(socket) {
     const name = socket.roomId;
     if (name && rooms[name]) {
         const wasCreator = rooms[name].creatorId === socket.id;
-        const p = rooms[name].players[socket.id];
-        if (p && p.questionTimerId) { clearTimeout(p.questionTimerId); }
         delete rooms[name].players[socket.id];
 
         if (Object.keys(rooms[name].players).length === 0) {
@@ -383,18 +323,13 @@ function leave(socket) {
 
 function updateAdmin() {
     const bank = refreshQuestionBank();
-    io.to('admins').emit('adminData', {
-        rooms: getSafeRooms(),
-        leaderboard: leaderboard,
-        questionBank: bank,
-        settings: globalSettings
-    });
+    io.to('admins').emit('adminData', { rooms: getSafeRooms(), leaderboard, questionBank: bank, settings: globalSettings });
 }
 
 server.listen(3033, '0.0.0.0', () => {
     console.log("🚀 Server draait op https://race.magsec.nl");
     const bank = refreshQuestionBank();
-    let totalQuestions = 0;
-    for (let category in bank) totalQuestions += bank[category].length;
-    console.log(`📚 Totaal aantal vragen succesvol geladen: ${totalQuestions} vragen!`);
+    let total = 0;
+    for (let cat in bank) total += bank[cat].length;
+    console.log(`📚 ${total} vragen geladen.`);
 });
