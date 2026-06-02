@@ -25,6 +25,32 @@ let globalSettings = {
     questionsPerRound: 10
 };
 
+const QUESTION_TIME = 10; // seconden per vraag
+
+function sendQuestionToPlayer(socketId, roomName) {
+    const room = rooms[roomName];
+    if (!room || !room.players[socketId]) return;
+    const p = room.players[socketId];
+
+    if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
+
+    io.to(socketId).emit('newQuestion', p.currentQuestion);
+
+    p.questionTimerId = setTimeout(() => {
+        if (!rooms[roomName] || !rooms[roomName].players[socketId]) return;
+        if (rooms[roomName].hasWinner || rooms[roomName].status !== 'playing') return;
+        const player = rooms[roomName].players[socketId];
+        player.currentQuestion = getRandomQuestion(rooms[roomName].categories);
+        player.questionTimerId = null;
+        io.to(socketId).emit('questionTimeout');
+        setTimeout(() => {
+            if (!rooms[roomName] || !rooms[roomName].players[socketId]) return;
+            if (rooms[roomName].hasWinner || rooms[roomName].status !== 'playing') return;
+            sendQuestionToPlayer(socketId, roomName);
+        }, 1500);
+    }, QUESTION_TIME * 1000);
+}
+
 function saveQuestionsToFile() {
     const fileContent = "const questionBank = " + JSON.stringify(questionBank, null, 4) + ";\n\nmodule.exports = questionBank;";
     fs.writeFileSync(questionBankFile, fileContent, 'utf8');
@@ -116,7 +142,7 @@ io.on('connection', (socket) => {
         if (!rooms[roomName]) {
             rooms[roomName] = {
                 categories: categories, players: {}, hasWinner: false,
-                status: 'waiting', countdown: 30, timerId: null,
+                status: 'waiting', countdown: 10, timerId: null,
                 creatorId: socket.id,
                 countdownStarted: false
             };
@@ -171,6 +197,9 @@ io.on('connection', (socket) => {
         if (!room || room.status !== 'playing' || room.hasWinner) return;
         const p = room.players[socket.id];
 
+        // Stop de vraagtimer zodra een antwoord binnenkomt
+        if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
+
         if (idx === p.currentQuestion.answer) {
             const stapGrootte = 100 / globalSettings.questionsPerRound;
             p.progress += stapGrootte;
@@ -186,12 +215,12 @@ io.on('connection', (socket) => {
                 setTimeout(() => resetRoom(socket.roomId), 6000);
             } else {
                 p.currentQuestion = getRandomQuestion(room.categories);
-                socket.emit('newQuestion', p.currentQuestion);
+                sendQuestionToPlayer(socket.id, socket.roomId);
             }
         } else {
             socket.emit('errorMessage', 'Fout! Strafseconde... Je krijgt een nieuwe vraag.');
             p.currentQuestion = getRandomQuestion(room.categories);
-            setTimeout(() => socket.emit('newQuestion', p.currentQuestion), 1500);
+            setTimeout(() => sendQuestionToPlayer(socket.id, socket.roomId), 1500);
         }
         io.to(socket.roomId).emit('updateGame', room.players);
     });
@@ -227,6 +256,9 @@ io.on('connection', (socket) => {
     socket.on('adminDeleteRoom', (name) => {
         if (rooms[name]) {
             clearInterval(rooms[name].timerId);
+            for (let id in rooms[name].players) {
+                if (rooms[name].players[id].questionTimerId) clearTimeout(rooms[name].players[id].questionTimerId);
+            }
             io.to(name).emit('errorMessage', 'Kamer gesloten door admin.');
             delete rooms[name]; broadcastRooms(); updateAdmin();
         }
@@ -297,7 +329,7 @@ function startTimer(name) {
             clearInterval(r.timerId);
             r.status = 'playing';
             io.to(name).emit('gameStarted');
-            for (let id in r.players) io.to(id).emit('newQuestion', r.players[id].currentQuestion);
+            for (let id in r.players) sendQuestionToPlayer(id, name);
         }
     }, 1000);
 }
@@ -306,16 +338,18 @@ function resetRoom(name) {
     if (!rooms[name]) return;
     rooms[name].hasWinner = false;
     rooms[name].status = 'waiting';
-    rooms[name].countdown = 30;
+    rooms[name].countdown = 10;
     rooms[name].countdownStarted = false;
 
     for (let id in rooms[name].players) {
-        rooms[name].players[id].progress = 0;
-        rooms[name].players[id].currentQuestion = getRandomQuestion(rooms[name].categories);
+        const p = rooms[name].players[id];
+        if (p.questionTimerId) { clearTimeout(p.questionTimerId); p.questionTimerId = null; }
+        p.progress = 0;
+        p.currentQuestion = getRandomQuestion(rooms[name].categories);
     }
 
     io.to(name).emit('backToLobby', {
-        tijd: 30,
+        tijd: 10,
         creatorId: rooms[name].creatorId
     });
     io.to(name).emit('updateGame', rooms[name].players);
@@ -326,6 +360,8 @@ function leave(socket) {
     const name = socket.roomId;
     if (name && rooms[name]) {
         const wasCreator = rooms[name].creatorId === socket.id;
+        const p = rooms[name].players[socket.id];
+        if (p && p.questionTimerId) { clearTimeout(p.questionTimerId); }
         delete rooms[name].players[socket.id];
 
         if (Object.keys(rooms[name].players).length === 0) {

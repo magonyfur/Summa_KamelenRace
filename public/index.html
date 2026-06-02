@@ -180,6 +180,22 @@
 
         #quiz-container { display: none; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
         #questionText { font-size: 24px; color: #2d3436; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+
+        .question-timer-row {
+            width: 100%; height: 10px; background: rgba(0,0,0,0.08);
+            border-radius: 6px; overflow: hidden; margin-bottom: 4px;
+        }
+        .question-timer-fill {
+            height: 100%; width: 100%; border-radius: 6px;
+            background: linear-gradient(90deg, #00b894, #fdcb6e);
+            transition: width 1s linear, background 0.5s ease;
+        }
+        .question-timer-fill.urgent { background: linear-gradient(90deg, #d63031, #e17055); }
+        .question-timer-label {
+            text-align: right; font-size: 12px; font-weight: 900;
+            color: #b2bec3; margin-bottom: 10px;
+        }
+        .question-timer-label.urgent { color: #d63031; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .option-btn {
             background: linear-gradient(135deg, #0984e3, #6c5ce7);
@@ -419,6 +435,10 @@
                 </div>
 
                 <div id="quiz-container" class="panel">
+                    <div class="question-timer-row">
+                        <div class="question-timer-fill" id="qTimerFill"></div>
+                    </div>
+                    <div class="question-timer-label"><span id="qTimerSecs">10</span>s</div>
                     <h2 id="questionText">Vraag laden...</h2>
                     <div class="options-grid" id="optionsGrid"></div>
                 </div>
@@ -469,6 +489,40 @@
         let amICreator = false;
         let minPlayers = 4;
         let maxPlayers = 8;
+
+        const QUESTION_SECS = 10;
+        let qTimerInterval = null;
+
+        function startQuestionTimer() {
+            clearQuestionTimer();
+            let secsLeft = QUESTION_SECS;
+            const fill = document.getElementById('qTimerFill');
+            const label = document.getElementById('qTimerSecs');
+            const labelRow = document.querySelector('.question-timer-label');
+            fill.style.transition = 'none';
+            fill.style.width = '100%';
+            fill.classList.remove('urgent');
+            labelRow.classList.remove('urgent');
+            label.innerText = QUESTION_SECS;
+            // Force reflow so the transition restart works
+            fill.getBoundingClientRect();
+            fill.style.transition = 'width 1s linear, background 0.5s ease';
+
+            qTimerInterval = setInterval(() => {
+                secsLeft--;
+                label.innerText = secsLeft;
+                fill.style.width = (secsLeft / QUESTION_SECS * 100) + '%';
+                if (secsLeft <= 3) {
+                    fill.classList.add('urgent');
+                    labelRow.classList.add('urgent');
+                }
+                if (secsLeft <= 0) clearQuestionTimer();
+            }, 1000);
+        }
+
+        function clearQuestionTimer() {
+            if (qTimerInterval) { clearInterval(qTimerInterval); qTimerInterval = null; }
+        }
 
         socket.on('mySocketId', (id) => { mySocketId = id; });
 
@@ -593,6 +647,7 @@
 
         btnLeave.onclick = () => {
             if (confirm("Weet je zeker dat je deze kamer wilt verlaten?")) {
+                clearQuestionTimer();
                 socket.emit('leaveRoom');
                 gameArea.style.display = 'none'; lobbyDiv.style.display = 'block';
                 quizContainer.style.display = 'none'; waitingScreen.style.display = 'none';
@@ -662,6 +717,7 @@
         });
 
         socket.on('backToLobby', (data) => {
+            clearQuestionTimer();
             winnerBanner.style.display = 'none';
             quizContainer.style.display = 'none';
             waitingScreen.style.display = 'block';
@@ -721,6 +777,7 @@
             isLocked = false;
             questionText.innerText = qData.q;
             optionsGrid.innerHTML = '';
+            startQuestionTimer();
             qData.options.forEach((optie, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
@@ -803,7 +860,18 @@
             });
         });
 
+        socket.on('questionTimeout', () => {
+            clearQuestionTimer();
+            isLocked = true;
+            const fill = document.getElementById('qTimerFill');
+            fill.style.width = '0%';
+            fill.classList.add('urgent');
+            questionText.innerText = '⏰ Tijd voorbij! Je krijgt een nieuwe vraag...';
+            optionsGrid.innerHTML = '';
+        });
+
         socket.on('winner', (winnerName) => {
+            clearQuestionTimer();
             quizContainer.style.display = 'none';
             winnerBanner.innerHTML = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆<br><small style="font-size:14px;opacity:0.85">De wachtkamer wordt zo herladen...</small>`;
             winnerBanner.style.display = 'block';
@@ -812,6 +880,7 @@
 
         socket.on('errorMessage', (msg) => {
             if (msg.includes('Fout!')) {
+                clearQuestionTimer();
                 questionText.innerText = `❌ ${msg}`;
                 optionsGrid.innerHTML = '';
             } else {
