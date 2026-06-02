@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐪Summa Kamelenrace</title>
+    <title>🐪 Summa Kamelenrace</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Nunito', sans-serif; 
+        body {
+            font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; 
+            margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center;
             min-height: 100vh; color: #2d3436;
         }
-        h1 { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); margin-top: 20px;}
-        h2, h3, h4 { color: #d35400; font-weight: 800; text-align: center; margin-top: 0;}
-        
-        .container { display: flex; width: 95%; max-width: 1200px; margin-top: 10px; gap: 20px; flex-wrap: wrap; justify-content: center;}
-        
-        .panel { 
+        h1 { color: #fff; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 5px rgba(0,0,0,0.2); margin-top: 20px; }
+        h2, h3, h4 { color: #d35400; font-weight: 800; text-align: center; margin-top: 0; }
+
+        .container { display: flex; width: 95%; max-width: 1200px; margin-top: 10px; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+        .panel {
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
-            border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 30px; 
+            border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); padding: 30px;
             border: 1px solid rgba(255, 255, 255, 0.4);
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-out;
             animation: fadeIn 0.6s ease-out;
@@ -27,47 +27,184 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .left-panel { flex: 1; min-width: 250px; height: fit-content; }
-        .main-panel { flex: 3; min-width: 300px; display: flex; flex-direction: column; align-items: center; width: 100%;}
+        .main-panel { flex: 3; min-width: 300px; display: flex; flex-direction: column; align-items: center; width: 100%; }
 
-        input[type="text"], select { 
+        input[type="text"], select {
             padding: 15px; font-size: 16px; margin: 10px 0; width: 85%; box-sizing: border-box;
             border: 2px solid #dfe6e9; border-radius: 12px; font-family: 'Nunito', sans-serif;
             transition: all 0.3s ease; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
         }
         input[type="text"]:focus, select:focus { outline: none; border-color: #e17055; box-shadow: 0 0 10px rgba(225, 112, 85, 0.3); }
-        
-        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin: 15px auto; width: 85%;}
-        .cat-item { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;}
-        .cat-item input { width: 20px; height: 20px; cursor: pointer; accent-color: #e17055;}
 
-        button { 
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin: 15px auto; width: 85%; }
+        .cat-item { display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+        .cat-item input { width: 20px; height: 20px; cursor: pointer; accent-color: #e17055; }
+
+        button {
             padding: 15px 30px; font-size: 18px; font-weight: 800; font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, #e17055, #d63031); color: white; border: none; border-radius: 12px; cursor: pointer; 
+            background: linear-gradient(135deg, #e17055, #d63031); color: white; border: none; border-radius: 12px; cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 20px rgba(214, 48, 49, 0.4); text-transform: uppercase;
         }
         button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(214, 48, 49, 0.5); }
         button:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(214, 48, 49, 0.4); }
-        
-        #gameArea { display: none; width: 100%; }
-        .game-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;}
-        #btnLeave { background: linear-gradient(135deg, #636e72, #2d3436); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); font-size: 14px; padding: 10px 20px;}
-        
-        #waitingScreen { display: none; width: 100%; text-align: center; margin-bottom: 20px; background: rgba(255,234,167, 0.9); }
-        .big-timer { font-size: 60px; font-weight: 900; color: #d63031; background: white; width: 100px; height: 100px; line-height: 100px; border-radius: 50%; margin: 10px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1);}
 
-        #quiz-container { display: none; width: 100%; margin-bottom: 20px; box-sizing: border-box;}
-        #questionText { font-size: 24px; color: #2d3436; min-height: 70px; display: flex; align-items: center; justify-content: center;}
+        #gameArea { display: none; width: 100%; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; }
+        #btnLeave { background: linear-gradient(135deg, #636e72, #2d3436); box-shadow: 0 4px 15px rgba(0,0,0,0.2); font-size: 14px; padding: 10px 20px; }
+
+        /* ── WAITING SCREEN ── */
+        #waitingScreen { display: none; width: 100%; text-align: center; margin-bottom: 20px; background: rgba(255,234,167,0.9); padding: 30px; }
+
+        .ws-header { margin-bottom: 24px; }
+        .ws-header .ws-icon { font-size: 48px; margin-bottom: 8px; }
+        .ws-header h2 { margin: 0 0 6px; font-size: 26px; color: #d35400; }
+        .ws-header p { margin: 0; color: #7f6a4d; font-size: 15px; font-weight: 700; }
+
+        /* Player cards in lobby */
+        .ws-player-list {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+            margin: 0 0 24px;
+        }
+        .lobby-player-card {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.85); border: 2px solid rgba(225,112,85,0.2);
+            border-radius: 50px; padding: 8px 16px 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            animation: cardPop 0.3s ease-out;
+            transition: transform 0.2s;
+        }
+        .lobby-player-card:hover { transform: translateY(-2px); }
+        @keyframes cardPop {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .player-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 900; font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+        .lobby-player-card .player-name { font-weight: 800; font-size: 15px; color: #2d3436; }
+        .host-badge {
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+            color: white; font-size: 11px; font-weight: 900;
+            padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
+            letter-spacing: 0.5px; flex-shrink: 0;
+        }
+
+        /* Host start section */
+        #creatorStartSection { display: none; }
+
+        .player-count-bar {
+            margin: 0 0 16px;
+            text-align: center;
+        }
+        .player-count-bar #playerCountLabel {
+            font-size: 14px; font-weight: 900; color: #7f6a4d;
+            display: block; margin-bottom: 8px;
+        }
+        .count-track {
+            width: 220px; height: 10px; margin: 0 auto;
+            background: rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden;
+        }
+        .count-fill {
+            height: 100%; border-radius: 10px; width: 0%;
+            background: linear-gradient(90deg, #fdcb6e, #e17055);
+            transition: width 0.4s ease, background 0.4s ease;
+        }
+        .count-fill.ready { background: linear-gradient(90deg, #00b894, #00cec9); }
+        .host-hint {
+            font-size: 15px; font-weight: 700; color: #7f6a4d;
+            margin: 0 0 16px; padding: 12px 20px;
+            background: rgba(255,255,255,0.6); border-radius: 12px;
+            border: 2px dashed rgba(225,112,85,0.4);
+        }
+        #btnStartCountdown {
+            font-size: 22px; padding: 18px 50px;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            box-shadow: 0 10px 30px rgba(0,184,148,0.45);
+            animation: pulse 2s infinite;
+        }
+        #btnStartCountdown:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0,184,148,0.55);
+            animation: none;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0,184,148,0.45); }
+            50% { box-shadow: 0 10px 40px rgba(0,184,148,0.75); transform: translateY(-2px); }
+        }
+
+        /* Waiting for host (non-creator view) */
+        #waitingForCreator { display: none; }
+        .waiting-indicator { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .waiting-indicator p { margin: 0; font-weight: 700; color: #7f6a4d; font-size: 15px; }
+        .waiting-dots { display: flex; gap: 8px; }
+        .waiting-dots span {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: #e17055; display: block;
+            animation: dotBounce 1.4s infinite ease-in-out;
+        }
+        .waiting-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .waiting-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* Countdown section */
+        #ws-countdown { display: none; }
+        .big-timer {
+            font-size: 70px; font-weight: 900; color: #d63031;
+            background: white; width: 110px; height: 110px; line-height: 110px;
+            border-radius: 50%; margin: 16px auto 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: background 0.3s, color 0.3s;
+        }
+        .timer-label { font-size: 15px; font-weight: 700; color: #7f6a4d; }
+
+        /* Creator notification toast */
+        .creator-notification {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+            color: white; padding: 14px 28px; border-radius: 50px;
+            font-size: 16px; font-weight: 900;
+            box-shadow: 0 8px 25px rgba(240,147,43,0.5);
+            z-index: 9999; animation: toastIn 0.4s ease-out;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        #quiz-container { display: none; width: 100%; margin-bottom: 20px; box-sizing: border-box; }
+        #questionText { font-size: 24px; color: #2d3436; min-height: 70px; display: flex; align-items: center; justify-content: center; }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .option-btn { background: #0984e3; box-shadow: 0 6px 15px rgba(9, 132, 227, 0.3); font-size: 16px; border-radius: 12px;}
-        .option-btn:hover { background: #74b9ff; }
-        
-        .track-container { width: 100%; background: #ffeaa7; border-radius: 20px; padding: 20px; border: 4px solid #fdcb6e; box-sizing: border-box; box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);}
+        .option-btn {
+            background: linear-gradient(135deg, #0984e3, #6c5ce7);
+            box-shadow: 0 6px 15px rgba(9,132,227,0.3); font-size: 16px; border-radius: 12px;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+        .option-btn:hover {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            transform: translateY(-3px); box-shadow: 0 10px 20px rgba(9,132,227,0.4);
+        }
+        .option-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+        .track-container { width: 100%; background: #ffeaa7; border-radius: 20px; padding: 20px; border: 4px solid #fdcb6e; box-sizing: border-box; box-shadow: inset 0 5px 15px rgba(0,0,0,0.1); }
         .track { border-bottom: 4px dashed #e17055; margin: 35px 0; position: relative; height: 50px; }
         .player-label { position: absolute; font-size: 12px; font-weight: 900; top: -20px; background: white; padding: 4px 10px; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); white-space: nowrap; left: 50%; transform: translateX(-50%); }
-        #finish { position: absolute; right: 0; top: -15px; bottom: -5px; width: 20px; background: repeating-linear-gradient(45deg, #2d3436, #2d3436 10px, white 10px, white 20px); border-radius: 5px; z-index: 1;}
+        #finish { position: absolute; right: 0; top: -15px; bottom: -5px; width: 20px; background: repeating-linear-gradient(45deg, #2d3436, #2d3436 10px, white 10px, white 20px); border-radius: 5px; z-index: 1; }
+
+        .progress-badge {
+            position: absolute; top: -20px; right: 24px;
+            font-size: 11px; font-weight: 900; color: #636e72;
+            background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 8px;
+        }
 
         .flipped-emoji { display: inline-block; transform: scaleX(-1); }
-        
+
         @keyframes gallop {
             0% { transform: scaleX(-1) translateY(0) rotate(0deg); }
             25% { transform: scaleX(-1) translateY(-10px) rotate(-10deg); }
@@ -78,255 +215,102 @@
         .stepping { animation: gallop 0.4s ease-in-out; }
 
         #leaderboardList { list-style-type: none; padding: 0; margin: 0; }
-        #leaderboardList li { padding: 15px 10px; border-bottom: 1px solid #dfe6e9; display: flex; justify-content: space-between; font-weight: 700; font-size: 16px;}
+        #leaderboardList li { padding: 15px 10px; border-bottom: 1px solid #dfe6e9; display: flex; justify-content: space-between; font-weight: 700; font-size: 16px; }
         #leaderboardList li:last-child { border-bottom: none; }
-        
-        #winnerBanner { display: none; background: #00b894; color: white; padding: 20px; border-radius: 15px; font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 20px; width: 100%; box-shadow: 0 10px 25px rgba(0, 184, 148, 0.4); box-sizing: border-box;}
 
-/* =====================================================================
-   GEMEENSCHAPPELIJKE STIJLEN (Basis voor elk thema)
-   ===================================================================== */
-:root {
-    --transition-speed: 0.4s;
-    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        #winnerBanner {
+            display: none; background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white; padding: 24px; border-radius: 15px;
+            font-size: 22px; font-weight: 900; text-align: center;
+            margin-bottom: 20px; width: 100%;
+            box-shadow: 0 10px 30px rgba(0,184,148,0.4);
+            box-sizing: border-box; animation: winnerPop 0.5s ease-out;
+        }
+        @keyframes winnerPop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
 
-body {
-    transition: background var(--transition-speed), color var(--transition-speed);
-    overflow-x: hidden;
-}
+        /* ── SHARED THEME BASE ── */
+        :root { --transition-speed: 0.4s; }
+        body { transition: background var(--transition-speed), color var(--transition-speed); overflow-x: hidden; }
 
-/* De container waar de racebanen in zitten */
-#game-screen {
-    padding: 20px;
-    position: relative;
-    z-index: 1; /* Zorgt dat content boven CSS-achtergronden staat */
-}
+        #game-screen { padding: 20px; position: relative; z-index: 1; }
 
-/* Basisstijl voor een racebaan */
-.camel-track {
-    position: relative;
-    height: 80px; /* Iets hoger voor emoji's */
-    margin-bottom: 15px;
-    background: rgba(255, 255, 255, 0.1); /* Licht transparante baan */
-    border-radius: 10px;
-    overflow: hidden;
-    border-bottom: 2px solid transparent;
-    transition: all var(--transition-speed);
-}
+        .camel-track {
+            position: relative; height: 80px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.1); border-radius: 10px;
+            overflow: hidden; border-bottom: 2px solid transparent;
+            transition: all var(--transition-speed);
+        }
+        .camel-track::after {
+            content: ''; position: absolute; top: 0; right: 50px;
+            width: 15px; height: 100%;
+            background: repeating-conic-gradient(#FFF 0% 25%, #000 0% 50%) 50% / 10px 10px;
+            opacity: 0.5; z-index: 1;
+        }
+        .camel {
+            width: 60px; height: 60px; position: absolute; bottom: 10px; left: 0;
+            transition: left 0.1s linear, transform 0.2s; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            visibility: hidden;
+        }
+        .camel img { display: none !important; }
+        .camel::after {
+            content: var(--sprite-emoji, "🐪"); font-size: 50px;
+            visibility: visible; position: absolute;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+        }
 
-/* De Finishlijn (pseudo-element op elke baan) */
-.camel-track::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 50px; /* 50px voor het einde */
-    width: 15px;
-    height: 100%;
-    background: repeating-conic-gradient(#FFF 0% 25%, #000 0% 50%) 50% / 10px 10px;
-    opacity: 0.5;
-    z-index: 1;
-}
+        button { transition: all 0.2s; outline: none; }
+        button:hover { filter: brightness(1.1); }
 
-/* Basisstijl voor de speler-sprite */
-.camel {
-    width: 60px;
-    height: 60px;
-    position: absolute;
-    bottom: 10px;
-    left: 0;
-    transition: left 0.1s linear, transform 0.2s;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    /* DE DEFINITIEVE FIX: Maakt alles in de div (inclusief de hardnekkige HTML kameel) 100% onzichtbaar */
-    visibility: hidden; 
-}
+        /* ── THEMES ── */
+        body.theme-desert { --sprite-emoji: "🐪"; background-color: #f4a460; background-image: radial-gradient(circle at 100% 150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%), radial-gradient(circle at 0 150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%), radial-gradient(circle at 50% 100%, #e29550 10%, #f4a460 11%, #f4a460 23%, #e29550 24%, #e29550 30%, #f4a460 31%, #f4a460 43%, #e29550 44%, #e29550 50%, #f4a460 51%); background-size: 100px 50px; color: #5c3a21; }
+        body.theme-desert .camel-track { background: rgba(139,69,19,0.15); border-bottom-color: #8b4513; }
+        body.theme-desert button { background: #cd853f; color: white; box-shadow: 0 4px 0 #8b4513; }
 
-/* Verberg de originele <img> tag mocht die er nog zijn */
-.camel img {
-    display: none !important;
-}
+        body.theme-hacker { --sprite-emoji: "🤖"; background-color: #000; background-image: linear-gradient(0deg, rgba(0,30,0,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,30,0,0.5) 1px, transparent 1px), linear-gradient(transparent 95%, rgba(0,255,0,0.2) 95%), linear-gradient(90deg, transparent 95%, rgba(0,255,0,0.2) 95%); background-size: 20px 20px, 20px 20px, 400px 400px, 400px 400px; color: #00ff00; font-family: 'Courier New', Courier, monospace; }
+        body.theme-hacker .camel-track { background: rgba(0,255,0,0.05); border-bottom-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.3); }
+        body.theme-hacker .camel::after { filter: drop-shadow(0 0 5px #00ff00); }
+        body.theme-hacker button { background: #000; color: #00ff00; border: 1px solid #00ff00; box-shadow: 0 0 5px #00ff00; }
 
-/* Plaats de nieuwe thema-emoji via het ::after pseudo-element */
-.camel::after {
-    content: var(--sprite-emoji, "🐪"); 
-    font-size: 50px; 
-    
-    /* Zorgt dat DEZE specifieke thema-emoji wél zichtbaar is! */
-    visibility: visible; 
-    
-    position: absolute;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
-}
+        body.theme-space { --sprite-emoji: "🚀"; background-color: #050510; background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px), radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px), radial-gradient(circle at 50% 50%, rgba(75,0,130,0.3), transparent 70%); background-size: 550px 550px, 350px 350px, 250px 250px, 100% 100%; background-position: 0 0, 40px 60px, 130px 270px, 0 0; color: #fff; }
+        body.theme-space .camel-track { background: rgba(255,255,255,0.08); border-bottom-color: #00d2ff; box-shadow: 0 0 15px rgba(0,210,255,0.2); }
+        body.theme-space .camel { transform: rotate(45deg); }
+        body.theme-space button { background: linear-gradient(135deg, #4b0082, #00d2ff); color: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,210,255,0.4); }
 
-/* Basisstijlen voor knoppen overschreven door thema's */
-button {
-    transition: all 0.2s;
-    outline: none;
-}
-button:hover {
-    filter: brightness(1.1);
-}
+        body.theme-neon { --sprite-emoji: "🦄"; background-color: #010101; background-image: linear-gradient(rgba(255,20,147,0.2) 2px, transparent 2px), linear-gradient(90deg, rgba(0,191,255,0.2) 2px, transparent 2px); background-size: 50px 50px; color: #fff; text-shadow: 0 0 5px #fff, 0 0 10px #ff1493; }
+        body.theme-neon .camel-track { background: rgba(255,20,147,0.05); border-bottom: 2px solid #00bfff; box-shadow: 0 0 15px #ff1493, inset 0 0 10px #00bfff; }
+        body.theme-neon .camel::after { filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ff1493); }
+        body.theme-neon button { background: transparent; color: #ff1493; border: 2px solid #ff1493; box-shadow: 0 0 10px #ff1493, inset 0 0 5px #ff1493; text-shadow: 0 0 5px #ff1493; }
+        body.theme-neon button:hover { background: #ff1493; color: white; }
 
-/* =====================================================================
-   THEMA SPECIFIEKE STIJLEN
-   ===================================================================== */
+        body.theme-ocean { --sprite-emoji: "🦈"; background-color: #001f3f; background-image: radial-gradient(circle at 50% -20%, #0074d9, transparent 80%), repeating-radial-gradient(circle at 50% -20%, transparent 0, rgba(255,255,255,0.05) 2px, transparent 4px, transparent 10px); color: #7fdbff; }
+        body.theme-ocean .camel-track { background: rgba(0,116,217,0.1); border-bottom-color: #7fdbff; }
+        body.theme-ocean button { background: #0074d9; color: white; }
 
-/* 1. DESERT (De Klassieke Woestijn) */
-body.theme-desert {
-    --sprite-emoji: "🐪";
-    background-color: #f4a460;
-    background-image: 
-        radial-gradient(circle at 100% 150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%),
-        radial-gradient(circle at 0    150%, #f4a460 24%, #e29550 25%, #e29550 28%, #f4a460 29%, #f4a460 36%, #e29550 36%, #e29550 40%, transparent 40%),
-        radial-gradient(circle at 50%  100%, #e29550 10%, #f4a460 11%, #f4a460 23%, #e29550 24%, #e29550 30%, #f4a460 31%, #f4a460 43%, #e29550 44%, #e29550 50%, #f4a460 51%);
-    background-size: 100px 50px;
-    color: #5c3a21;
-}
-body.theme-desert .camel-track { background: rgba(139, 69, 19, 0.15); border-bottom-color: #8b4513; }
-body.theme-desert button { background: #cd853f; color: white; box-shadow: 0 4px 0 #8b4513; }
+        body.theme-volcano { --sprite-emoji: "🐉"; background-color: #222; background-image: linear-gradient(135deg, #111 25%, transparent 25%), linear-gradient(225deg, #111 25%, transparent 25%), linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(315deg, #111 25%, transparent 25%), radial-gradient(#ff4136 10%, transparent 11%); background-size: 40px 40px, 40px 40px, 40px 40px, 40px 40px, 100px 100px; background-position: 20px 0, 20px 0, 0 0, 0 0, 0 0; color: #ff851b; }
+        body.theme-volcano .camel-track { background: rgba(255,65,54,0.1); border-bottom-color: #ff4136; }
+        body.theme-volcano button { background: #ff4136; color: white; }
 
-/* 2. HACKER (Matrix Digital Rain) */
-body.theme-hacker {
-    --sprite-emoji: "🤖";
-    background-color: #000;
-    background-image: 
-        linear-gradient(0deg, rgba(0, 30, 0, 0.5) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 30, 0, 0.5) 1px, transparent 1px),
-        linear-gradient(transparent 95%, rgba(0, 255, 0, 0.2) 95%),
-        linear-gradient(90deg, transparent 95%, rgba(0, 255, 0, 0.2) 95%);
-    background-size: 20px 20px, 20px 20px, 400px 400px, 400px 400px;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-}
-body.theme-hacker .camel-track { background: rgba(0, 255, 0, 0.05); border-bottom-color: #00ff00; box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
-body.theme-hacker .camel::after { filter: drop-shadow(0 0 5px #00ff00); }
-body.theme-hacker button { background: #000; color: #00ff00; border: 1px solid #00ff00; box-shadow: 0 0 5px #00ff00; text-transform: monospace; }
+        body.theme-jungle { --sprite-emoji: "🐒"; background-color: #0a290a; background-image: radial-gradient(circle at 10% 10%, #1a4d1a 3px, transparent 4px), radial-gradient(circle at 90% 80%, #1a4d1a 4px, transparent 5px), radial-gradient(circle at 50% 50%, #0d330d 20%, transparent 60%), linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d), linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d); background-size: 100px 100px, 150px 150px, 300px 300px, 50px 50px, 50px 50px; background-position: 0 0, 0 0, 0 0, 0 0, 25px 25px; color: #2ecc40; }
+        body.theme-jungle .camel-track { background: rgba(61,153,112,0.1); border-bottom-color: #3d9970; }
+        body.theme-jungle button { background: #2ecc40; color: #0a290a; border-radius: 20px; }
 
-/* 3. SPACE (Kosmische Mist) */
-body.theme-space {
-    --sprite-emoji: "🚀";
-    background-color: #050510;
-    background-image: 
-        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px),
-        radial-gradient(circle at 50% 50%, rgba(75, 0, 130, 0.3), transparent 70%);
-    background-size: 550px 550px, 350px 350px, 250px 250px, 100% 100%;
-    background-position: 0 0, 40px 60px, 130px 270px, 0 0;
-    color: #fff;
-}
-body.theme-space .camel-track { background: rgba(255, 255, 255, 0.08); border-bottom-color: #00d2ff; box-shadow: 0 0 15px rgba(0, 210, 255, 0.2); }
-body.theme-space .camel { transform: rotate(45deg); }
-body.theme-space button { background: linear-gradient(135deg, #4b0082, #00d2ff); color: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4); }
+        body.theme-candy { --sprite-emoji: "🍰"; background-color: #ffe6ea; background-image: repeating-linear-gradient(45deg, #ffe6ea, #ffe6ea 20px, #fff 20px, #fff 40px); color: #ff1493; }
+        body.theme-candy .camel-track { background: rgba(255,105,180,0.1); border-bottom-color: #ff69b4; border-radius: 20px; }
+        body.theme-candy button { background: linear-gradient(#ff69b4, #ff1493); color: white; border-radius: 50px; }
 
-/* 4. NEON (Retro Cyber Vibe) */
-body.theme-neon {
-    --sprite-emoji: "🦄";
-    background-color: #010101;
-    background-image: 
-        linear-gradient(rgba(255, 20, 147, 0.2) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(0, 191, 255, 0.2) 2px, transparent 2px);
-    background-size: 50px 50px;
-    color: #fff;
-    text-shadow: 0 0 5px #fff, 0 0 10px #ff1493;
-}
-body.theme-neon .camel-track { background: rgba(255, 20, 147, 0.05); border-bottom: 2px solid #00bfff; box-shadow: 0 0 15px #ff1493, inset 0 0 10px #00bfff; }
-body.theme-neon .camel::after { filter: drop-shadow(0 0 5px #fff) drop-shadow(0 0 10px #ff1493); }
-body.theme-neon button { background: transparent; color: #ff1493; border: 2px solid #ff1493; box-shadow: 0 0 10px #ff1493, inset 0 0 5px #ff1493; text-shadow: 0 0 5px #ff1493; }
-body.theme-neon button:hover { background: #ff1493; color: white; box-shadow: 0 0 20px #ff1493; }
+        body.theme-luxury { --sprite-emoji: "💎"; background-color: #111; background-image: linear-gradient(120deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 20%, transparent 20%, transparent 100%), linear-gradient(240deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 15%, transparent 15%, transparent 100%); color: #ffd700; }
+        body.theme-luxury .camel-track { background: rgba(255,215,0,0.03); border-bottom: 1px solid #ffd700; }
+        body.theme-luxury .camel::after { filter: drop-shadow(0 0 10px #ffd700); }
+        body.theme-luxury button { background: linear-gradient(45deg, #b8860b, #ffd700, #b8860b); background-size: 200% auto; color: #000; text-transform: uppercase; letter-spacing: 2px; }
 
-/* 5. OCEAN (Onderwaterwereld) */
-body.theme-ocean {
-    --sprite-emoji: "🦈";
-    background-color: #001f3f;
-    background-image: 
-        radial-gradient(circle at 50% -20%, #0074d9, transparent 80%),
-        repeating-radial-gradient(circle at 50% -20%, transparent 0, rgba(255,255,255,0.05) 2px, transparent 4px, transparent 10px);
-    color: #7fdbff;
-}
-body.theme-ocean .camel-track { background: rgba(0, 116, 217, 0.1); border-bottom-color: #7fdbff; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-body.theme-ocean button { background: #0074d9; color: white; border-radius: 5px; box-shadow: 0 4px 0 #001f3f; }
-
-/* 6. VOLCANO (Lava Velden) */
-body.theme-volcano {
-    --sprite-emoji: "🐉";
-    background-color: #222;
-    background-image: 
-        linear-gradient(135deg, #111 25%, transparent 25%), 
-        linear-gradient(225deg, #111 25%, transparent 25%), 
-        linear-gradient(45deg, #111 25%, transparent 25%), 
-        linear-gradient(315deg, #111 25%, transparent 25%),
-        radial-gradient(#ff4136 10%, transparent 11%);
-    background-size: 40px 40px, 40px 40px, 40px 40px, 40px 40px, 100px 100px;
-    background-position: 20px 0, 20px 0, 0 0, 0 0, 0 0;
-    color: #ff851b;
-}
-body.theme-volcano .camel-track { background: rgba(255, 65, 54, 0.1); border-bottom-color: #ff4136; box-shadow: 0 0 15px rgba(255, 65, 54, 0.5); }
-body.theme-volcano .camel::after { filter: drop-shadow(0 0 5px #ff851b) drop-shadow(0 0 10px #ff4136); }
-body.theme-volcano button { background: #ff4136; color: white; box-shadow: 0 4px 0 #800; border: 1px solid #ff851b; }
-
-/* 7. JUNGLE (Bladerdek) */
-body.theme-jungle {
-    --sprite-emoji: "🐒";
-    background-color: #0a290a;
-    background-image: 
-        radial-gradient(circle at 10% 10%, #1a4d1a 3px, transparent 4px),
-        radial-gradient(circle at 90% 80%, #1a4d1a 4px, transparent 5px),
-        radial-gradient(circle at 50% 50%, #0d330d 20%, transparent 60%),
-        linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d),
-        linear-gradient(45deg, #0d330d 25%, transparent 25%, transparent 75%, #0d330d 75%, #0d330d);
-    background-size: 100px 100px, 150px 150px, 300px 300px, 50px 50px, 50px 50px;
-    background-position: 0 0, 0 0, 0 0, 0 0, 25px 25px;
-    color: #2ecc40;
-}
-body.theme-jungle .camel-track { background: rgba(61, 153, 112, 0.1); border-bottom-color: #3d9970; }
-body.theme-jungle button { background: #2ecc40; color: #0a290a; border-radius: 20px; }
-
-/* 8. CANDY (Willy Wonka Stijl) */
-body.theme-candy {
-    --sprite-emoji: "🍰";
-    background-color: #ffe6ea;
-    background-image: repeating-linear-gradient(45deg, #ffe6ea, #ffe6ea 20px, #fff 20px, #fff 40px);
-    color: #ff1493;
-}
-body.theme-candy .camel-track { background: rgba(255, 105, 180, 0.1); border-bottom-color: #ff69b4; border-radius: 20px; }
-body.theme-candy button { background: linear-gradient(#ff69b4, #ff1493); color: white; border-radius: 50px; box-shadow: 0 4px 0 #c06; }
-
-/* 9. LUXURY (Zwart & Goud VIP) */
-body.theme-luxury {
-    --sprite-emoji: "💎";
-    background-color: #111;
-    background-image: 
-        linear-gradient(120deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 20%, transparent 20%, transparent 100%),
-        linear-gradient(240deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 15%, transparent 15%, transparent 100%);
-    background-size: 100% 100%;
-    color: #ffd700;
-}
-body.theme-luxury .camel-track { background: rgba(255, 215, 0, 0.03); border-bottom: 1px solid #ffd700; border-radius: 0; }
-body.theme-luxury .camel::after { filter: drop-shadow(0 0 10px #ffd700); }
-body.theme-luxury button { background: linear-gradient(45deg, #b8860b, #ffd700, #b8860b); background-size: 200% auto; color: #000; text-transform: uppercase; letter-spacing: 2px; border: none; box-shadow: 0 2px 5px rgba(255,215,0,0.5); }
-body.theme-luxury button:hover { background-position: right center; }
-
-/* 10. CYBERPUNK (Neon & Synthwave) */
-body.theme-cyberpunk {
-    --sprite-emoji: "🏍️";
-    background-color: #0b001a;
-    background-image: 
-        linear-gradient(rgba(1, 205, 254, 0.2) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 113, 206, 0.2) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center center;
-    color: #01cdfe;
-    text-shadow: 0 0 5px rgba(1, 205, 254, 0.8);
-}
-body.theme-cyberpunk .camel-track { background: rgba(255, 113, 206, 0.05); border-bottom: 2px dashed #ff71ce; box-shadow: 0 5px 15px rgba(255, 113, 206, 0.1); }
-body.theme-cyberpunk .camel::after { filter: drop-shadow(0 0 5px #01cdfe) drop-shadow(0 0 15px #ff71ce); }
-body.theme-cyberpunk button { background: linear-gradient(45deg, #01cdfe, #ff71ce); color: #0b001a; border: none; box-shadow: 0 0 10px rgba(1, 205, 254, 0.6), 0 0 20px rgba(255, 113, 206, 0.4); text-shadow: none; letter-spacing: 1px; }
-body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71ce; }
+        body.theme-cyberpunk { --sprite-emoji: "🏍️"; background-color: #0b001a; background-image: linear-gradient(rgba(1,205,254,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,113,206,0.2) 1px, transparent 1px); background-size: 40px 40px; color: #01cdfe; }
+        body.theme-cyberpunk .camel-track { background: rgba(255,113,206,0.05); border-bottom: 2px dashed #ff71ce; }
+        body.theme-cyberpunk .camel::after { filter: drop-shadow(0 0 5px #01cdfe) drop-shadow(0 0 15px #ff71ce); }
+        body.theme-cyberpunk button { background: linear-gradient(45deg, #01cdfe, #ff71ce); color: #0b001a; }
     </style>
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/theme-worlds.css">
@@ -359,12 +343,12 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                 <div class="form-stack">
                     <label class="field-label" for="playerName">Naam</label>
                     <input type="text" id="playerName" placeholder="Jouw Naam (bijv. HackerHenk)" maxlength="15">
-                    
+
                     <label class="field-label" for="roomDropdown">Kamer</label>
                     <select id="roomDropdown"><option value="">-- Maak een nieuwe kamer --</option></select>
                     <input type="text" id="roomName" placeholder="Of typ een nieuwe kamernaam">
                 </div>
-                
+
                 <div id="catSection">
                     <div class="category-heading">
                         <h4>Kies Categorieën</h4>
@@ -374,8 +358,7 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                             <button type="button" id="btnNoCats">Geen</button>
                         </div>
                     </div>
-                    <div class="cat-grid" id="catGrid">
-                        </div>
+                    <div class="cat-grid" id="catGrid"></div>
                 </div>
                 <button id="btnJoin" style="margin-top: 20px;">🏁 Ga naar Kamer!</button>
             </div>
@@ -391,11 +374,48 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                 </div>
 
                 <div id="winnerBanner"></div>
-                
+
+                <!-- WAITING SCREEN -->
                 <div id="waitingScreen" class="panel">
-                    <h2>⏳ Wachten op medespelers...</h2>
-                    <p>De race begint over:</p>
-                    <div class="big-timer" id="timerDisplay">60</div>
+                    <!-- Pre-game: waiting for host to start -->
+                    <div id="ws-pregame">
+                        <div class="ws-header">
+                            <div class="ws-icon">🏟️</div>
+                            <h2 id="ws-title">Lobby</h2>
+                            <p id="ws-subtitle">Wacht tot de host de race start</p>
+                        </div>
+
+                        <div id="ws-player-list" class="ws-player-list"></div>
+
+                        <div id="creatorStartSection">
+                            <p class="host-hint">✨ Jij bent de host! Start de race zodra iedereen er is.</p>
+                            <div id="playerCountBar" class="player-count-bar">
+                                <span id="playerCountLabel">0 / 4 spelers</span>
+                                <div class="count-track">
+                                    <div id="countFill" class="count-fill"></div>
+                                </div>
+                            </div>
+                            <button id="btnStartCountdown" disabled>⏳ Wacht op spelers...</button>
+                        </div>
+
+                        <div id="waitingForCreator">
+                            <div class="waiting-indicator">
+                                <div class="waiting-dots"><span></span><span></span><span></span></div>
+                                <p>Wachten tot de host start...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Countdown active -->
+                    <div id="ws-countdown">
+                        <div class="ws-header">
+                            <div class="ws-icon">⏱️</div>
+                            <h2>Race begint over...</h2>
+                            <p>Maak je klaar! 🐪</p>
+                        </div>
+                        <div class="big-timer" id="timerDisplay">30</div>
+                        <p class="timer-label">seconden</p>
+                    </div>
                 </div>
 
                 <div id="quiz-container" class="panel">
@@ -417,8 +437,10 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
         const roomTitle = document.getElementById('roomTitle');
         const btnJoin = document.getElementById('btnJoin');
         const btnLeave = document.getElementById('btnLeave');
-        
+
         const waitingScreen = document.getElementById('waitingScreen');
+        const wsPregame = document.getElementById('ws-pregame');
+        const wsCountdown = document.getElementById('ws-countdown');
         const timerDisplay = document.getElementById('timerDisplay');
         const quizContainer = document.getElementById('quiz-container');
         const questionText = document.getElementById('questionText');
@@ -438,8 +460,72 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
         const btnNoCats = document.getElementById('btnNoCats');
         const playerCount = document.getElementById('playerCount');
         const racePhase = document.getElementById('racePhase');
+        const creatorStartSection = document.getElementById('creatorStartSection');
+        const waitingForCreator = document.getElementById('waitingForCreator');
+        const wsPlayerList = document.getElementById('ws-player-list');
 
-        let isLocked = false; 
+        let isLocked = false;
+        let mySocketId = null;
+        let amICreator = false;
+        let minPlayers = 4;
+        let maxPlayers = 8;
+
+        socket.on('mySocketId', (id) => { mySocketId = id; });
+
+        function showWaitingPregame(isCreator) {
+            wsPregame.style.display = 'block';
+            wsCountdown.style.display = 'none';
+            if (isCreator) {
+                creatorStartSection.style.display = 'block';
+                waitingForCreator.style.display = 'none';
+            } else {
+                creatorStartSection.style.display = 'none';
+                waitingForCreator.style.display = 'block';
+            }
+        }
+
+        function updateStartButton(currentCount) {
+            const btn = document.getElementById('btnStartCountdown');
+            const fill = document.getElementById('countFill');
+            const label = document.getElementById('playerCountLabel');
+            const pct = Math.min(100, (currentCount / minPlayers) * 100);
+
+            label.innerText = `${currentCount} / ${minPlayers} spelers aanwezig (max ${maxPlayers})`;
+            fill.style.width = pct + '%';
+
+            if (currentCount >= minPlayers) {
+                fill.classList.add('ready');
+                btn.disabled = false;
+                btn.innerText = '🚀 Start de Race!';
+                btn.style.animation = 'pulse 2s infinite';
+                btn.style.cursor = 'pointer';
+                btn.style.opacity = '1';
+            } else {
+                fill.classList.remove('ready');
+                const needed = minPlayers - currentCount;
+                btn.disabled = true;
+                btn.innerText = `⏳ Nog ${needed} speler${needed !== 1 ? 's' : ''} nodig...`;
+                btn.style.animation = 'none';
+                btn.style.cursor = 'not-allowed';
+                btn.style.opacity = '0.6';
+            }
+        }
+
+        function renderLobbyPlayers(players, creatorId) {
+            wsPlayerList.innerHTML = '';
+            players.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'lobby-player-card';
+                const initial = p.name.charAt(0).toUpperCase();
+                const isHost = p.id === creatorId;
+                card.innerHTML = `
+                    <div class="player-avatar" style="background: ${p.color}">${initial}</div>
+                    <span class="player-name">${p.name}</span>
+                    ${isHost ? '<span class="host-badge">👑 Host</span>' : ''}
+                `;
+                wsPlayerList.appendChild(card);
+            });
+        }
 
         function updateSelectedCategoryCount() {
             const checked = document.querySelectorAll('#catGrid input[type="checkbox"]:checked').length;
@@ -448,9 +534,8 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             categoryCountBadge.innerText = `${total} ${total === 1 ? 'categorie' : 'categorieën'}`;
         }
 
-        // --- DYNAMISCHE CATEGORIEËN ---
         socket.on('availableCategories', (categories) => {
-            catGrid.innerHTML = ''; 
+            catGrid.innerHTML = '';
             categories.forEach(cat => {
                 const label = document.createElement('label');
                 label.className = 'cat-item';
@@ -461,7 +546,6 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             updateSelectedCategoryCount();
         });
 
-        // --- LOBBY LOGICA ---
         socket.on('activeRoomsList', (list) => {
             const currentVal = roomDropdown.value;
             roomDropdown.innerHTML = '<option value="">-- Maak een nieuwe kamer --</option>';
@@ -470,7 +554,7 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
                 opt.value = r; opt.innerText = r;
                 roomDropdown.appendChild(opt);
             });
-            if(list.includes(currentVal)) roomDropdown.value = currentVal;
+            if (list.includes(currentVal)) roomDropdown.value = currentVal;
             roomCountBadge.innerText = `${list.length} ${list.length === 1 ? 'kamer' : 'kamers'}`;
         });
 
@@ -492,16 +576,15 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
 
         socket.on('roomStatus', (exists) => { catSection.style.display = exists ? 'none' : 'block'; });
 
-        // --- JOIN & LEAVE ---
         btnJoin.onclick = () => {
             const playerName = document.getElementById('playerName').value.trim();
             const roomName = roomInput.value.trim();
-            
+
             let categories = [];
-            if(catSection.style.display !== 'none') {
+            if (catSection.style.display !== 'none') {
                 const checkboxes = document.querySelectorAll('#catGrid input[type="checkbox"]:checked');
                 categories = Array.from(checkboxes).map(cb => cb.value);
-                if(categories.length === 0) return alert("Kies minimaal 1 categorie!");
+                if (categories.length === 0) return alert("Kies minimaal 1 categorie!");
             }
 
             if (playerName && roomName) socket.emit('joinRoom', { playerName, roomName, categories });
@@ -509,60 +592,149 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
         };
 
         btnLeave.onclick = () => {
-            if(confirm("Weet je zeker dat je deze kamer wilt verlaten?")) {
+            if (confirm("Weet je zeker dat je deze kamer wilt verlaten?")) {
                 socket.emit('leaveRoom');
                 gameArea.style.display = 'none'; lobbyDiv.style.display = 'block';
                 quizContainer.style.display = 'none'; waitingScreen.style.display = 'none';
                 winnerBanner.style.display = 'none';
+                amICreator = false;
             }
         };
 
-        // --- GAME FLOW ---
+        document.getElementById('btnStartCountdown').onclick = () => {
+            socket.emit('creatorStartCountdown');
+        };
+
+        // ── GAME FLOW ──
+
         socket.on('waitingPhase', (data) => {
-            lobbyDiv.style.display = 'none'; gameArea.style.display = 'block';
-            winnerBanner.style.display = 'none'; quizContainer.style.display = 'none'; 
-            waitingScreen.style.display = 'block'; 
-            
+            amICreator = data.isCreator;
+            lobbyDiv.style.display = 'none';
+            gameArea.style.display = 'block';
+            winnerBanner.style.display = 'none';
+            quizContainer.style.display = 'none';
+            waitingScreen.style.display = 'block';
+
+            if (data.countdownStarted) {
+                wsPregame.style.display = 'none';
+                wsCountdown.style.display = 'block';
+                timerDisplay.innerText = data.tijd;
+            } else {
+                showWaitingPregame(data.isCreator);
+            }
+
             let catText = data.categories ? (data.categories.length > 2 ? "Mix van Alles" : data.categories.join(" & ")) : "";
-            roomTitle.innerText = `🐪 Kamer: ${roomInput.value.trim()} ${catText ? '('+catText+')' : ''}`;
-            timerDisplay.innerText = data.tijd;
-            racePhase.innerText = 'Wachten';
+            roomTitle.innerText = `🐪 Kamer: ${roomInput.value.trim()} ${catText ? '(' + catText + ')' : ''}`;
+            racePhase.innerText = 'Lobby';
         });
 
-        socket.on('backToLobby', (tijd) => {
-            winnerBanner.style.display = 'none'; quizContainer.style.display = 'none'; 
-            waitingScreen.style.display = 'block'; 
-            timerDisplay.innerText = tijd; timerDisplay.style.background = "white"; timerDisplay.style.color = "#d63031";
-            racePhase.innerText = 'Wachten';
+        socket.on('lobbyUpdate', (data) => {
+            renderLobbyPlayers(data.players, data.creatorId);
+            if (amICreator) updateStartButton(data.players.length);
+            if (data.countdownStarted && wsPregame.style.display !== 'none') {
+                wsPregame.style.display = 'none';
+                wsCountdown.style.display = 'block';
+            }
+        });
+
+        socket.on('countdownStarted', (tijd) => {
+            wsPregame.style.display = 'none';
+            wsCountdown.style.display = 'block';
+            timerDisplay.innerText = tijd;
+            timerDisplay.style.background = 'white';
+            timerDisplay.style.color = '#d63031';
+            racePhase.innerText = 'Countdown';
+        });
+
+        socket.on('youAreNowCreator', () => {
+            amICreator = true;
+            if (waitingScreen.style.display !== 'none' && wsPregame.style.display !== 'none') {
+                creatorStartSection.style.display = 'block';
+                waitingForCreator.style.display = 'none';
+                const currentCount = document.querySelectorAll('.lobby-player-card').length;
+                updateStartButton(currentCount);
+            }
+            const toast = document.createElement('div');
+            toast.className = 'creator-notification';
+            toast.innerText = '👑 Jij bent nu de host!';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        });
+
+        socket.on('backToLobby', (data) => {
+            winnerBanner.style.display = 'none';
+            quizContainer.style.display = 'none';
+            waitingScreen.style.display = 'block';
+            racePhase.innerText = 'Lobby';
+
+            // Handle both object format (new) and number format (legacy)
+            const creatorId = data && data.creatorId ? data.creatorId : null;
+            const tijd = data && data.tijd ? data.tijd : (typeof data === 'number' ? data : 30);
+
+            if (creatorId) {
+                amICreator = (mySocketId === creatorId);
+            }
+
+            timerDisplay.innerText = tijd;
+            timerDisplay.style.background = 'white';
+            timerDisplay.style.color = '#d63031';
+            showWaitingPregame(amICreator);
         });
 
         socket.on('timerUpdate', (tijd) => {
             timerDisplay.innerText = tijd;
-            if(tijd <= 10) { timerDisplay.style.color = "white"; timerDisplay.style.background = "#d63031"; } 
-            else { timerDisplay.style.color = "#d63031"; timerDisplay.style.background = "white"; }
+            if (tijd <= 10) {
+                timerDisplay.style.color = 'white';
+                timerDisplay.style.background = '#d63031';
+            } else {
+                timerDisplay.style.color = '#d63031';
+                timerDisplay.style.background = 'white';
+            }
         });
 
-        socket.on('gameStarted', () => { 
-            waitingScreen.style.display = 'none'; quizContainer.style.display = 'block'; winnerBanner.style.display = 'none';
-            racePhase.innerText = 'Race';
+        socket.on('gameStarted', () => {
+            waitingScreen.style.display = 'none';
+            quizContainer.style.display = 'block';
+            winnerBanner.style.display = 'none';
+            racePhase.innerText = 'Race 🏁';
         });
 
         socket.on('settingsUpdated', (settings) => {
-         // Verwijder oude thema's en zet de nieuwe
-            document.body.className = ''; 
+            document.body.className = '';
             document.body.classList.add(`theme-${settings.theme}`);
+            if (settings.minPlayers) minPlayers = settings.minPlayers;
+            if (settings.maxPlayers) maxPlayers = settings.maxPlayers;
         });
 
-        // --- QUIZ & KAMELEN ---
+        socket.on('notEnoughPlayers', (data) => {
+            const needed = data.min - data.current;
+            const toast = document.createElement('div');
+            toast.className = 'creator-notification';
+            toast.style.background = 'linear-gradient(135deg, #e17055, #d63031)';
+            toast.innerText = `⚠️ Nog ${needed} speler${needed !== 1 ? 's' : ''} nodig om te starten!`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        });
+
+        // ── QUIZ ──
         socket.on('newQuestion', (qData) => {
-            isLocked = false; questionText.innerText = qData.q; optionsGrid.innerHTML = '';
+            isLocked = false;
+            questionText.innerText = qData.q;
+            optionsGrid.innerHTML = '';
             qData.options.forEach((optie, index) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-btn'; btn.innerText = optie;
+                btn.className = 'option-btn';
+                btn.innerText = optie;
                 btn.onclick = () => {
                     if (!isLocked) {
-                        isLocked = true; socket.emit('submitAnswer', index);
-                        btn.style.opacity = '0.5'; btn.innerText = 'Gekozen...';
+                        isLocked = true;
+                        socket.emit('submitAnswer', index);
+                        optionsGrid.querySelectorAll('.option-btn').forEach(b => {
+                            b.disabled = true;
+                            b.style.opacity = '0.6';
+                        });
+                        btn.style.opacity = '1';
+                        btn.innerText = '⏳ ' + optie;
                     }
                 };
                 optionsGrid.appendChild(btn);
@@ -573,26 +745,38 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
             tracksDiv.innerHTML = '';
             for (let id in players) {
                 const p = players[id];
-                const track = document.createElement('div'); track.className = 'track'; track.style.setProperty('--progress', p.progress + '%');
-                const finish = document.createElement('div'); finish.id = 'finish'; track.appendChild(finish);
+                const track = document.createElement('div');
+                track.className = 'track';
+                track.style.setProperty('--progress', p.progress + '%');
+
+                const finish = document.createElement('div');
+                finish.id = 'finish';
+                track.appendChild(finish);
+
                 const progressBadge = document.createElement('div');
                 progressBadge.className = 'progress-badge';
                 progressBadge.innerText = `${Math.round(p.progress)}%`;
                 track.appendChild(progressBadge);
 
                 const camelWrapper = document.createElement('div');
-                camelWrapper.className = 'camel'; camelWrapper.id = `camel-${id}`; camelWrapper.style.left = p.progress + '%';
+                camelWrapper.className = 'camel';
+                camelWrapper.id = `camel-${id}`;
+                camelWrapper.style.left = p.progress + '%';
 
                 const emojiSpan = document.createElement('span');
-                emojiSpan.id = `emoji-${id}`; 
-                emojiSpan.className = 'flipped-emoji'; emojiSpan.innerText = '🐪';
+                emojiSpan.id = `emoji-${id}`;
+                emojiSpan.className = 'flipped-emoji';
+                emojiSpan.innerText = '🐪';
                 camelWrapper.appendChild(emojiSpan);
 
                 const label = document.createElement('div');
-                label.className = 'player-label'; label.style.color = p.color; label.innerText = p.name;
+                label.className = 'player-label';
+                label.style.color = p.color;
+                label.innerText = p.name;
                 camelWrapper.appendChild(label);
 
-                track.appendChild(camelWrapper); tracksDiv.appendChild(track);
+                track.appendChild(camelWrapper);
+                tracksDiv.appendChild(track);
             }
             const count = Object.keys(players).length;
             playerCount.innerText = `${count} ${count === 1 ? 'racer' : 'racers'}`;
@@ -600,13 +784,13 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
 
         socket.on('camelStepped', (playerId) => {
             const playerCamel = document.getElementById(`camel-${playerId}`);
-            if(playerCamel) {
+            if (playerCamel) {
                 playerCamel.classList.add('stepping');
-                setTimeout(() => playerCamel.classList.remove('stepping'), 450); 
+                setTimeout(() => playerCamel.classList.remove('stepping'), 450);
             }
         });
 
-        // --- LEADERBOARD & MELDINGEN ---
+        // ── LEADERBOARD & MELDINGEN ──
         socket.on('updateLeaderboard', (lbData) => {
             leaderboardList.innerHTML = '';
             const sortedPlayers = Object.entries(lbData).sort((a, b) => b[1] - a[1]);
@@ -620,15 +804,19 @@ body.theme-cyberpunk button:hover { box-shadow: 0 0 20px #01cdfe, 0 0 30px #ff71
         });
 
         socket.on('winner', (winnerName) => {
-            quizContainer.style.display = 'none'; 
-            winnerBanner.innerText = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆 \n De wachtruimte wordt zo weer geladen...`;
+            quizContainer.style.display = 'none';
+            winnerBanner.innerHTML = `🏆 ${winnerName} HEEFT GEWONNEN! 🏆<br><small style="font-size:14px;opacity:0.85">De wachtkamer wordt zo herladen...</small>`;
             winnerBanner.style.display = 'block';
-            racePhase.innerText = 'Finish';
+            racePhase.innerText = 'Finish 🏆';
         });
 
         socket.on('errorMessage', (msg) => {
-            if(msg.includes('Fout!')) { questionText.innerText = `❌ ${msg}`; optionsGrid.innerHTML = ''; } 
-            else alert(msg); 
+            if (msg.includes('Fout!')) {
+                questionText.innerText = `❌ ${msg}`;
+                optionsGrid.innerHTML = '';
+            } else {
+                alert(msg);
+            }
         });
     </script>
 </body>

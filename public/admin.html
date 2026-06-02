@@ -176,8 +176,11 @@
     </optgroup>
 </select>
                 <br><br>
-                <label><strong>Max Spelers per Kamer:</strong></label><br>
-                <input type="number" id="maxPlayersInput" value="6" min="2" max="50">
+                <label><strong>Min. spelers om te starten:</strong></label><br>
+                <input type="number" id="minPlayersInput" value="4" min="1" max="20">
+                <br><br>
+                <label><strong>Max. spelers per kamer:</strong></label><br>
+                <input type="number" id="maxPlayersInput" value="8" min="1" max="20">
                 <br><br>
                 <label><strong>Aantal vragen per ronde:</strong></label><br>
                 <input type="number" id="questionsPerRoundInput" value="10" min="1" max="100">
@@ -224,6 +227,7 @@
         updateSummary(data.rooms || {}, data.questionBank || {});
         if(data.settings) {
             document.getElementById('themeSelect').value = data.settings.theme;
+            document.getElementById('minPlayersInput').value = data.settings.minPlayers || 4;
             document.getElementById('maxPlayersInput').value = data.settings.maxPlayers;
             document.getElementById('questionsPerRoundInput').value = data.settings.questionsPerRound;
         }
@@ -240,12 +244,19 @@
     // --- INSTELLINGEN LOGICA ---
     function saveSettings() {
         const theme = document.getElementById('themeSelect').value;
-        const maxP = document.getElementById('maxPlayersInput').value;
+        const minP = parseInt(document.getElementById('minPlayersInput').value);
+        const maxP = parseInt(document.getElementById('maxPlayersInput').value);
         const qPerRound = document.getElementById('questionsPerRoundInput').value;
-        
+
+        if (minP > maxP) {
+            alert("Min. spelers mag niet groter zijn dan max. spelers!");
+            return;
+        }
+
         socket.emit('adminUpdateSettings', {
             theme: theme,
-            maxPlayers: parseInt(maxP),
+            minPlayers: minP,
+            maxPlayers: maxP,
             questionsPerRound: parseInt(qPerRound)
         });
         alert("Instellingen opgeslagen en doorgestuurd naar alle spelers!");
